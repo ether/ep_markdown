@@ -1,0 +1,18 @@
+{
+  "name": "ep_markdown",
+  "description": "Edit as Markdown in Etherpad",
+  "version": "0.0.1",
+  "author": {
+    "name": "John McLear",
+    "email": "john@mclear.co.uk",
+    "url": "http://mclear.co.uk"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johnmclear/ep_markdown"
+  },
+  "contributors": [],
+  "dependencies": {
+   "ep_headings" :"*"
+  }
+}

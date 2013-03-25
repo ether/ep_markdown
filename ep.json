@@ -1,0 +1,11 @@
+{
+  "parts":[
+    {
+      "name": "markdown",
+      "client_hooks": {
+        "aceEditorCSS": "ep_markdown/static/js/markdown",
+        "postAceInit": "ep_markdown/static/js/markdown"
+      }
+    }
+  ]
+}
