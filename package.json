@@ -12,7 +12,7 @@
     "url": "https://github.com/johnmclear/ep_markdown"
   },
   "contributors": [],
-  "dependencies": {
+  "peerDependencies": {
    "ep_headings" :"*"
   }
 }
