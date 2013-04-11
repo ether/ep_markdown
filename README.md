@@ -15,5 +15,7 @@ ep_markdown_default: "true",
 todo
 ====
 * Support all styles fully
+* append .md to markdown exports
+* Create markdown icon for export menu
 
 Contact me to sponsor dev.
