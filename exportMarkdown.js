@@ -68,7 +68,7 @@ function getMarkdownFromAtext(pad, atext)
   var textLines = atext.text.slice(0, -1).split('\n');
   var attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
 
-  var tags = ['textbf', 'textit', 'underline', 'sout'];
+  var tags = ['**', 'textit', 'underline', 'sout'];
   var props = ['bold', 'italic', 'underline', 'strikethrough'];
   var anumMap = {};
 
@@ -122,15 +122,16 @@ function getMarkdownFromAtext(pad, atext)
     function emitOpenTag(i)
     {
       openTags.unshift(i);
-      assem.append('\\');
+//      assem.append('');
       assem.append(tags[i]);
-      assem.append('{');
+//      assem.append('{');
     }
 
     function emitCloseTag(i)
     {
       openTags.shift();
-      assem.append('}');
+console.warn(i);
+      assem.append('**');
     }
     
     function orderdCloseTags(tags2close)
