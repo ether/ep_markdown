@@ -68,7 +68,7 @@ function getMarkdownFromAtext(pad, atext)
   var textLines = atext.text.slice(0, -1).split('\n');
   var attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
 
-  var tags = ['**', 'textit', 'underline', 'sout'];
+  var tags = ['**', '*', 'underline', 'sout'];
   var props = ['bold', 'italic', 'underline', 'strikethrough'];
   var anumMap = {};
 
@@ -81,7 +81,7 @@ function getMarkdownFromAtext(pad, atext)
     }
   });
 
-  var headingtags = ['section', 'subsection', 'subsubsection', 'paragraph', 'subparagraph', 'subparagraph'];
+  var headingtags = ['#', '##', '###', '    ', '      ', '        '];
   var headingprops = [['heading', 'h1'], ['heading', 'h2'], ['heading', 'h3'], ['heading', 'h4'], ['heading', 'h5'], ['heading', 'h6']];
   var headinganumMap = {};
 
@@ -122,16 +122,13 @@ function getMarkdownFromAtext(pad, atext)
     function emitOpenTag(i)
     {
       openTags.unshift(i);
-//      assem.append('');
       assem.append(tags[i]);
-//      assem.append('{');
     }
 
     function emitCloseTag(i)
     {
       openTags.shift();
-console.warn(i);
-      assem.append('**');
+      assem.append(tags[i]);
     }
     
     function orderdCloseTags(tags2close)
@@ -169,7 +166,7 @@ console.warn(i);
     }
 
     if (heading) {
-      assem.append('\\'+heading+'{');
+      assem.append(heading);
     }
 
     var urls = _findURLs(text);
@@ -323,9 +320,9 @@ console.warn(i);
 
     processNextChars(text.length - idx);
 
-    if (heading) {
-      assem.append('}');
-    }
+//    if (heading) {
+//      assem.append('}');
+//    }
 
     // replace &, _
     assem = assem.toString();
@@ -370,85 +367,29 @@ console.warn(i);
         lists.push([line.listLevel, line.listTypeName]);
         if(line.listTypeName == "number")
         {
-          pieces.push("\n"+(new Array((line.listLevel-1)*4)).join(' ')+"\\begin{enumerate} \n"+(new Array(line.listLevel*4)).join(' ')+"\\item ", lineContent || "\n");
+          pieces.push("\n"+(new Array((line.listLevel-1)*4)).join(' ')+(new Array(line.listLevel*4)).join(' ')+"1. ", lineContent || "\n");
+
         }
         else
         {
-          pieces.push("\n"+(new Array((line.listLevel-1)*4)).join(' ')+"\\begin{itemize} \n"+(new Array(line.listLevel*4)).join(' ')+"\\item ", lineContent || "\n");
+          pieces.push("\n"+(new Array((line.listLevel-1)*4)).join(' ')+(new Array(line.listLevel*4)).join(' ')+"* ", lineContent || "\n");
         }
       }
-      //the following code *seems* dead after my patch.
-      //I keep it just in case I'm wrong...
-      /*else if (whichList == -1)//means we are not inside a list
-      {
-        if (line.text)
-        {
-          console.log('trace 1');
-          // non-blank line, end all lists
-          if(line.listTypeName == "number")
-          {
-            pieces.push(new Array(lists.length + 1).join('</li></ol>'));
-          }
-          else
-          {
-            pieces.push(new Array(lists.length + 1).join('</li></ul>'));
-          }
-          lists.length = 0;
-          pieces.push(lineContent, '<br>');
-        }
-        else
-        {
-          console.log('trace 2');
-          pieces.push('<br><br>');
-        }
-      }*/
       else//means we are getting closer to the lowest level of indentation
       {
-        while (whichList < lists.length - 1)
-        {
-          if(lists[lists.length - 1][1] == "number")
-          {
-            pieces.push("\n"+(new Array((line.listLevel-1)*4)).join(' ')+"\\end{enumerate}");
-          }
-          else
-          {
-            pieces.push("\n"+(new Array((line.listLevel-1)*4)).join(' ')+"\\end{itemize}");
-          }
-          lists.length--;
+        if(line.listTypeName == "number"){
+          pieces.push("\n"+(new Array(line.listLevel*4)).join(' ')+"1. ", lineContent || "\n"); // problem here 
+        }else{
+          pieces.push("\n"+(new Array(line.listLevel*4)).join(' ')+"* ", lineContent || "\n"); // problem here
         }
-        pieces.push("\n"+(new Array(line.listLevel*4)).join(' ')+"\\item ", lineContent || "\n");
       }
     }
     else//outside any list
     {
-      while (lists.length > 0)//if was in a list: close it before
-      {
-        if(lists[lists.length - 1][1] == "number")
-        {
-          pieces.push("\n"+(new Array((lists.length-1)*4)).join(' ')+"\\end{enumerate}\n");
-        }
-        else
-        {
-          pieces.push("\n"+(new Array((lists.length-1)*4)).join(' ')+"\\end{itemize}\n");
-        }
-        lists.length--;
-      }      
       pieces.push(lineContent, "\n");
     }
-  }
-  
-  for (var k = lists.length - 1; k >= 0; k--)
-  {
-    if(lists[k][1] == "number")
-    {
-      pieces.push("\n\\end{enumeratex}\n");
-    }
-    else
-    {
-      pieces.push("\n\\end{itemizex}\n");
-    }
-  }
 
+  }
   return pieces.join("");
 }
 

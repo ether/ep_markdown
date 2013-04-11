@@ -18,7 +18,13 @@ exports.eejsBlock_styles = function (hook_name, args, cb) {
 };
 
 exports.eejsBlock_mySettings = function (hook_name, args, cb) {
-  if (!settings.ep_markdown_default) checked_state = 'checked';
+  if (!settings.ep_markdown_default){
+    checked_state = 'unchecked';
+  }else{
+    if(settings.ep_markdown_default == true){
+      checked_state = 'checked';
+    }
+  }
   args.content = args.content + eejs.require('ep_markdown/templates/markdown_entry.ejs', {checked : checked_state});
   return cb();
 }
