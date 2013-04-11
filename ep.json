@@ -2,6 +2,9 @@
   "parts":[
     {
       "name": "markdown",
+      "hooks":{
+        "getLineHTMLForExport": "ep_markdown/export"
+      },
       "client_hooks": {
         "aceEditorCSS": "ep_markdown/static/js/markdown",
         "postAceInit": "ep_markdown/static/js/markdown"
