@@ -10,7 +10,7 @@ Setting as default
 ==================
 Paste the below into your settings.
 
-ep_markdown_default: "true",
+"ep_markdown_default": true,
 
 todo
 ====
