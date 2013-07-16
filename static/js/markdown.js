@@ -11,8 +11,8 @@ exports.postAceInit = function(hook, context){
     },
     disable: function() {
       $('iframe[name="ace_outer"]').contents().find('iframe').contents().find("#innerdocbody").removeClass("markdown"); // add css class markdown
-      $('#underline').show(); // no markdown support for these
-      $('#strikethrough').show();
+      $('#underline').removeAttr('style'); // no markdown support for these
+      $('#strikethrough').removeAttr('style');
     }
   }
 
