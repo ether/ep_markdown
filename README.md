@@ -1,6 +1,8 @@
 Markdown editing in Etherpad
 ============================
 
+![Alt Text](http://i.imgur.com/bGZHFqH.gif "ep_markdown in action")
+
 Use the normal editbar buttons to add markdown.
 Export as Markdown.
 
