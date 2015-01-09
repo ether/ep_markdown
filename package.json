@@ -14,5 +14,6 @@
   "contributors": [],
   "peerDependencies": {
    "ep_headings" :"*"
-  }
+  },
+  "license": "Apache-2.0"
 }
