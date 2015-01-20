@@ -29,11 +29,11 @@ function getInlineStyle(header) {
 }
 // line, apool,attribLine,text
 exports.getLineHTMLForExport = function (hook, context) {
-  var header = _analyzeLine(context.attribLine, context.apool);
-  if (header) {
-    var inlineStyle = getInlineStyle(header);
-    return "<" + header + " style=\"" + inlineStyle + "\">" + context.text.substring(1) + "</" + header + ">";
-  }
+//  var header = _analyzeLine(context.attribLine, context.apool);
+//  if (header) {
+//    var inlineStyle = getInlineStyle(header);
+//    return "<" + header + " style=\"" + inlineStyle + "\">" + context.text.substring(1) + "</" + header + ">";
+//  }
 }
 
 function _analyzeLine(alineAttrs, apool) {
