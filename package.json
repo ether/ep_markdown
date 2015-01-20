@@ -1,7 +1,7 @@
 {
   "name": "ep_markdown",
   "description": "Edit and Export as Markdown in Etherpad",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": {
     "name": "John McLear",
     "email": "john@mclear.co.uk",
@@ -12,5 +12,8 @@
     "url": "https://github.com/johnmclear/ep_markdown"
   },
   "contributors": [],
+  "peerDependencies": {
+    "ep_headings2" :"*"
+  },
   "license": "Apache-2.0"
 }
