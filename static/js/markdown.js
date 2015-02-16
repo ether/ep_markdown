@@ -21,7 +21,6 @@ exports.postAceInit = function(hook, context){
     markdown.enable();
   } else {
     markdown.disable();
-//    showmarkdown();
   }
   /* on click */
   $('#options-markdown').on('click', function() {
@@ -33,4 +32,6 @@ exports.postAceInit = function(hook, context){
   });
 }
 
-exports.aceEditorCSS = function(hook_name, cb){return ["/ep_markdown/static/css/markdown.css"];} // inner pad CSS
+exports.aceEditorCSS = function(hook_name, cb){
+  return ["/ep_markdown/static/css/markdown.css"];
+} // inner pad CSS
