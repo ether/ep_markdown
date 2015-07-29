@@ -7,6 +7,7 @@ exports.expressCreateServer = function (hook_name, args, cb) {
 
     exportMarkdown.getPadMarkdownDocument(padID, revision, function(err, result) {
       res.contentType('plain/text');
+      res.header('Access-Control-Allow-Origin', '*');
       res.send(result);
     });
   });
