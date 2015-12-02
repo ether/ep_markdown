@@ -2,6 +2,7 @@ if(typeof exports == 'undefined'){
   var exports = this['mymodule'] = {};
 }
 
+/* toggle show raw markdown / display formatting */
 exports.postAceInit = function(hook, context){
   var markdown = {
     enable: function() {

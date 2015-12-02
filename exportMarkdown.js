@@ -62,6 +62,7 @@ function getPadMarkdown(pad, revNum, callback)
 
 exports.getPadMarkdown = getPadMarkdown;
 
+/* This function does the work in converting the pad content to markdown */
 function getMarkdownFromAtext(pad, atext)
 {
   var apool = pad.apool();
@@ -103,6 +104,9 @@ function getMarkdownFromAtext(pad, atext)
     }
   });
 
+  /**
+   * Convert all formatting in the line except lists to markdown
+   */
   function getLineMarkdown(text, attribs)
   {
     var propVals = [false, false, false];
@@ -331,19 +335,27 @@ function getMarkdownFromAtext(pad, atext)
 
     return assem;
   } // end getLineMarkdown
+
+  /** The individual lines(?) in the output document */
   var pieces = [];
 
-  // Need to deal with constraints imposed on HTML lists; can
-  // only gain one level of nesting at once, can't change type
-  // mid-list, etc.
-  // People might use weird indenting, e.g. skip a level,
-  // so we want to do something reasonable there.  We also
-  // want to deal gracefully with blank lines.
-  // => keeps track of the parents level of indentation
+  /**
+   * Need to deal with constraints imposed on HTML lists; can
+   * only gain one level of nesting at once, can't change type
+   * mid-list, etc.
+   * People might use weird indenting, e.g. skip a level,
+   * so we want to do something reasonable there.  We also
+   * want to deal gracefully with blank lines.
+   * => keeps track of the parents level of indentation
+   */
   var lists = []; // e.g. [[1,'bullet'], [3,'bullet'], ...]
+
+  // iterate over the input document lines
   for (var i = 0; i < textLines.length; i++)
   {
+    // ... check if we're in a list item
     var line = _analyzeLine(textLines[i], attribLines[i], apool);
+    // ... convert all other formatting
     var lineContent = getLineMarkdown(line.text, line.aline);
             
     if (line.listLevel)//If we are inside a list
@@ -393,6 +405,14 @@ function getMarkdownFromAtext(pad, atext)
   return pieces.join("");
 }
 
+/**
+ * Check if a line is a list item, and extract information about it
+ *
+ * @return line.listLevel  If it is a numbered list, the index, else 0
+ * @return line.listTypeName  If it is a char-indexed list, the index character
+ * @return line.text  The line text, without the index (if present)
+ * @return line.aline  The attributed line, without the index (if present)
+ */
 function _analyzeLine(text, aline, apool)
 {
   var line = {};

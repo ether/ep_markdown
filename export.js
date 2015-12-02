@@ -27,6 +27,9 @@ function getInlineStyle(header) {
   
   return "";
 }
+
+//TODO: currently the hook (and this whole file) does nothing
+
 // line, apool,attribLine,text
 exports.getLineHTMLForExport = function (hook, context) {
 //  var header = _analyzeLine(context.attribLine, context.apool);
