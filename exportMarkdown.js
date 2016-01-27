@@ -365,23 +365,12 @@ function getMarkdownFromAtext(pad, atext)
       if (whichList >= lists.length)//means we are on a deeper level of indentation than the previous line
       {
         lists.push([line.listLevel, line.listTypeName]);
-        if(line.listTypeName == "number")
-        {
-          pieces.push("\n"+(new Array((line.listLevel-1)*4)).join(' ')+(new Array(line.listLevel*4)).join(' ')+"1. ", lineContent || "\n");
-
-        }
-        else
-        {
-          pieces.push("\n"+(new Array((line.listLevel-1)*4)).join(' ')+(new Array(line.listLevel*4)).join(' ')+"* ", lineContent || "\n");
-        }
       }
-      else//means we are getting closer to the lowest level of indentation
-      {
-        if(line.listTypeName == "number"){
-          pieces.push("\n"+(new Array(line.listLevel*4)).join(' ')+"1. ", lineContent || "\n"); // problem here 
-        }else{
-          pieces.push("\n"+(new Array(line.listLevel*4)).join(' ')+"* ", lineContent || "\n"); // problem here
-        }
+      
+      if(line.listTypeName == "number"){
+        pieces.push("\n"+(new Array(line.listLevel*4)).join(' ')+"1. ", lineContent || "\n"); // problem here 
+      }else{
+	pieces.push("\n"+(new Array(line.listLevel*4)).join(' ')+"* ", lineContent || "\n"); // problem here
       }
     }
     else//outside any list
