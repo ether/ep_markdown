@@ -68,7 +68,7 @@ function getMarkdownFromAtext(pad, atext)
   var textLines = atext.text.slice(0, -1).split('\n');
   var attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
 
-  var tags = ['**', '*', 'underline', 'sout'];
+  var tags = ['**', '*', '[]', '~~'];
   var props = ['bold', 'italic', 'underline', 'strikethrough'];
   var anumMap = {};
 
@@ -81,8 +81,8 @@ function getMarkdownFromAtext(pad, atext)
     }
   });
 
-  var headingtags = ['#', '##', '###', '    ', '      ', '        '];
-  var headingprops = [['heading', 'h1'], ['heading', 'h2'], ['heading', 'h3'], ['heading', 'h4'], ['heading', 'h5'], ['heading', 'h6']];
+  var headingtags = ['#', '##', '###', '####', '#####', '######', '`'];
+  var headingprops = [['heading', 'h1'], ['heading', 'h2'], ['heading', 'h3'], ['heading', 'h4'], ['heading', 'h5'], ['heading', 'h6'], ['heading', 'code']];
   var headinganumMap = {};
 
   headingprops.forEach(function (prop, i)
@@ -312,9 +312,9 @@ function getMarkdownFromAtext(pad, atext)
         var url = urlData[1];
         var urlLength = url.length;
         processNextChars(startIndex - idx);
-        assem.append('\\url{');
+        assem.append('['+url+'](');
         processNextChars(urlLength);
-        assem.append('}');
+        assem.append(')');
       });
     }
 
@@ -451,6 +451,5 @@ function _findURLs(text)
     var url = execResult[0];
     urls.push([startIndex, url]);
   }
-
   return urls;
 }
