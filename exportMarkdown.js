@@ -421,17 +421,14 @@ function _analyzeLine(text, aline, apool)
   return line;
 }
 
-exports.getPadMarkdownDocument = function (padId, revNum, callback)
+exports.getPadMarkdownDocument = async function (padId, revNum, callback)
 {
-  padManager.getPad(padId, function (err, pad)
+  var pad = await padManager.getPad(padId)
+
+  getPadMarkdown(pad, revNum, function (err, Markdown)
   {
     if(ERR(err, callback)) return;
-
-    getPadMarkdown(pad, revNum, function (err, Markdown)
-    {
-      if(ERR(err, callback)) return;
-      callback(null, Markdown);
-    });
+    callback(null, Markdown);
   });
 }
 
