@@ -17,7 +17,6 @@ Paste the below into your settings.
 todo
 ====
 * Support all styles fully
-* append .md to markdown exports
 * Create markdown icon for export menu
 
 Contact me to sponsor dev.
