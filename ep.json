@@ -3,7 +3,6 @@
     {
       "name": "markdown",
       "hooks":{
-        "getLineHTMLForExport": "ep_markdown/export",
         "expressCreateServer": "ep_markdown/express",
         "eejsBlock_exportColumn": "ep_markdown/index",
         "eejsBlock_scripts": "ep_markdown/index",
