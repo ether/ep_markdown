@@ -81,7 +81,7 @@ function getMarkdownFromAtext(pad, atext)
     }
   });
 
-  var headingtags = ['#', '##', '###', '####', '#####', '######', '`'];
+  var headingtags = ['# ', '## ', '### ', '#### ', '##### ', '###### ', '`'];
   var headingprops = [['heading', 'h1'], ['heading', 'h2'], ['heading', 'h3'], ['heading', 'h4'], ['heading', 'h5'], ['heading', 'h6'], ['heading', 'code']];
   var headinganumMap = {};
 
