@@ -60,12 +60,14 @@
   margin: 0;
   overflow: hidden;
 }
+/*
 .markdown h1:after {
   content: "====================================================================================================";
   position: absolute;
   bottom: 20px;
   left: 0;
 }
+*/
 .markdown h1 + * {
   margin-top: 0;
 }
@@ -76,6 +78,10 @@
 .markdown h6 {
   position: relative;
   margin-bottom: 20px;
+}
+.markdown h1:before{
+  content: "# ";
+  display: inline;
 }
 .markdown h2:before,
 .markdown h3:before,
@@ -165,7 +171,7 @@
 }
 .markdown code:before,
 .markdown code:after {
-  content: "`";
+  content: "```";
   display: inline;
 }
 .markdown pre code:before,
