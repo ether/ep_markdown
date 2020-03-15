@@ -81,7 +81,7 @@ function getMarkdownFromAtext(pad, atext)
     }
   });
 
-  var headingtags = ['# ', '## ', '### ', '#### ', '##### ', '###### ', '```'];
+  var headingtags = ['# ', '## ', '### ', '#### ', '##### ', '###### ', '``'];
   var headingprops = [['heading', 'h1'], ['heading', 'h2'], ['heading', 'h3'], ['heading', 'h4'], ['heading', 'h5'], ['heading', 'h6'], ['heading', 'code']];
   var headinganumMap = {};
 
@@ -167,7 +167,7 @@ function getMarkdownFromAtext(pad, atext)
     }
 
     if (heading) {
-      if(heading === "```"){
+      if(heading === "``"){
         isCode = true;
       }else{
         isCode = false;
@@ -281,9 +281,9 @@ function getMarkdownFromAtext(pad, atext)
         {
           chars--; // exclude newline at end of line, if present
         }
-        
+
         var s = taker.take(chars);
-        
+
         //removes the characters with the code 12. Don't know where they come 
         //from but they break the abiword parser and are completly useless
         s = s.replace(String.fromCharCode(12), "");
@@ -293,10 +293,10 @@ function getMarkdownFromAtext(pad, atext)
           s = s.substring(1);
           deletedAsterisk = true;
         }
-        
+
         assem.append(s);
       } // end iteration over spans in line
-      
+
       var tags2close = [];
       for (var i = propVals.length - 1; i >= 0; i--)
       {
@@ -306,7 +306,7 @@ function getMarkdownFromAtext(pad, atext)
           propVals[i] = false;
         }
       }
-      
+
       orderdCloseTags(tags2close);
     } // end processNextChars
 
@@ -327,7 +327,7 @@ function getMarkdownFromAtext(pad, atext)
     processNextChars(text.length - idx);
 
     if (isCode) {
-      assem.append('```');
+      assem.append('``');
     }
 
     // replace &, _
@@ -351,7 +351,7 @@ function getMarkdownFromAtext(pad, atext)
   {
     var line = _analyzeLine(textLines[i], attribLines[i], apool);
     var lineContent = getLineMarkdown(line.text, line.aline);
-            
+
     if (line.listLevel)//If we are inside a list
     {
       // do list stuff
@@ -372,7 +372,7 @@ function getMarkdownFromAtext(pad, atext)
       {
         lists.push([line.listLevel, line.listTypeName]);
       }
-      
+
       if(line.listTypeName == "number"){
         pieces.push("\n"+(new Array(line.listLevel*4)).join(' ')+"1. ", lineContent || "\n"); // problem here 
       }else{
@@ -381,7 +381,7 @@ function getMarkdownFromAtext(pad, atext)
     }
     else//outside any list
     {
-      pieces.push(lineContent, "\n");
+      pieces.push("\n", lineContent, "\n");
     }
 
   }
