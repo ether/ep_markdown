@@ -81,7 +81,7 @@ function getMarkdownFromAtext(pad, atext)
     }
   });
 
-  var headingtags = ['# ', '## ', '### ', '#### ', '##### ', '###### ', '``'];
+  var headingtags = ['# ', '## ', '### ', '#### ', '##### ', '###### ', '    '];
   var headingprops = [['heading', 'h1'], ['heading', 'h2'], ['heading', 'h3'], ['heading', 'h4'], ['heading', 'h5'], ['heading', 'h6'], ['heading', 'code']];
   var headinganumMap = {};
 
@@ -149,7 +149,6 @@ function getMarkdownFromAtext(pad, atext)
 
     // start heading check
     var heading = false;
-    var isCode = false;
     var deletedAsterisk = false; // we need to delete * from the beginning of the heading line
     var iter2 = Changeset.opIterator(Changeset.subattribution(attribs, 0, 1));
     if (iter2.hasNext()) {
@@ -167,11 +166,6 @@ function getMarkdownFromAtext(pad, atext)
     }
 
     if (heading) {
-      if(heading === "``"){
-        isCode = true;
-      }else{
-        isCode = false;
-      }
       assem.append(heading);
     }
 
@@ -325,10 +319,6 @@ function getMarkdownFromAtext(pad, atext)
     }
 
     processNextChars(text.length - idx);
-
-    if (isCode) {
-      assem.append('``');
-    }
 
     // replace &, _
     assem = assem.toString();

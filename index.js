@@ -32,20 +32,20 @@ exports.eejsBlock_mySettings = function (hook_name, args, cb) {
 
 exports.import = function (hook_name, args ,callback){
 
-  console.log("ep_markdown handling import", args);
+  if(args.fileEnding.indexOf(".md") === -1) return callback();
+  // It is Markdown file, let's go!
 
-  if(args.fileEnding.indexOf(".md") !== -1){
+  var markdown  = fs.readFileSync(args.srcFile, 'utf-8');
+  var showdown  = require('showdown');
+  var converter = new showdown.Converter({completeHTMLDocument: true});
 
-    console.log("markdown imported file..");
+  var html      = converter.makeHtml(markdown);
 
-    fs.writeFile(args.destFile, "some contents", 'utf8', function(err){
+  fs.writeFile(args.destFile, html, 'utf8', function(err){
 
-      if(err) callback(err, null);
-      callback(args.destFile);
+    if(err) callback(err, null);
+    callback(args.destFile);
 
-    });
+  });
 
-  }else{
-    callback(false);
-  }
 }

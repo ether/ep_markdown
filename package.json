@@ -11,9 +11,12 @@
     "type": "git",
     "url": "https://github.com/johnmclear/ep_markdown"
   },
+  "dependencies": {
+    "showdown": "*"
+  },
   "contributors": [],
   "peerDependencies": {
-    "ep_headings2" :"*"
+    "ep_headings2": "*"
   },
   "license": "Apache-2.0"
 }

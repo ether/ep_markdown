@@ -169,9 +169,8 @@
 .markdown code {
   font-weight: 100;
 }
-.markdown code:before,
-.markdown code:after {
-  content: "```";
+.markdown code:before{
+  content: "\00a0\00a0\00a0\00a0";
   display: inline;
 }
 .markdown pre code:before,
