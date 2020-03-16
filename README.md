@@ -7,8 +7,9 @@ Features
 ========
 
 * Use the normal editbar buttons to add markdown.
+* Import as Markdown (automatically applies styling / text attributes).
 * Export as Markdown.
-* Localizations
+* Localizations.
 
 Usage
 =====
