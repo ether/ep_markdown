@@ -17,7 +17,7 @@ To enable Markdown view click Settings -> Markdown
 
 Limitations
 ===========
-This plugin is not designed for you to write Markdown and it format that markdown with styling.  So you can't expect to type **blah** and expect to see blah in bold.  You can however type blah, set it as bold and then click "Show as Markdown" and it will show **bold**.  I will not be adding support for supporting typing in markdown which will render to a style because it will be impossible to handle character control.
+This plugin is not designed for you to write Markdown and it format that markdown with styling.  So you can't expect to type \*\*blah\*\* and expect to see blah in bold.  You can however type blah, set it as bold and then click "Show as Markdown" and it will show \*\*bold\*\*.  I will not be adding support for supporting typing in markdown which will render to a style because it will be impossible to handle character control.
 
 Setting as default
 ==================
