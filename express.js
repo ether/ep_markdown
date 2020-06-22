@@ -11,7 +11,7 @@ exports.expressCreateServer = function (hook_name, args, cb) {
       }
       catch(err) {
           res.setHeader('Content-disposition', 'attachment; filename=pad.md');
-          console.warning('Bad char in padID : ' + padID);
+          console.warn('Bad char in padID : ' + padID);
       }
       res.contentType('plain/text');
       res.send(result);
