@@ -6,10 +6,9 @@ exports.expressCreateServer = function (hook_name, args, cb) {
     var revision = req.params.rev ? req.params.rev : null;
 
     exportMarkdown.getPadMarkdownDocument(padID, revision, function(err, result) {
-      res.setHeader('Content-disposition', 'attachment; filename='+padID+'.md');
+      res.attachment(padID+'.md');
       res.contentType('plain/text');
       res.send(result);
     });
   });
 };
-
