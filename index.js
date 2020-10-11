@@ -4,17 +4,17 @@ var settings = require('ep_etherpad-lite/node/utils/Settings');
 var fs = require("fs");
 
 exports.eejsBlock_exportColumn = function(hook_name, args, cb) {
-  args.content = args.content + eejs.require("ep_markdown/templates/exportcolumn.html", {}, module);
+  args.content = args.content + eejs.require('./templates/exportcolumn.html', {}, module);
   return cb();
 };
 
 exports.eejsBlock_scripts = function (hook_name, args, cb) {
-  args.content = args.content + eejs.require("ep_markdown/templates/scripts.html", {}, module);
+  args.content = args.content + eejs.require('./templates/scripts.html', {}, module);
   return cb();
 };
 
 exports.eejsBlock_styles = function (hook_name, args, cb) {
-  args.content = args.content + eejs.require("ep_markdown/templates/styles.html", {}, module);
+  args.content = args.content + eejs.require('./templates/styles.html', {}, module);
   return cb();
 };
 
@@ -26,7 +26,8 @@ exports.eejsBlock_mySettings = function (hook_name, args, cb) {
       checked_state = 'checked';
     }
   }
-  args.content = args.content + eejs.require('ep_markdown/templates/markdown_entry.ejs', {checked : checked_state});
+  args.content = args.content +
+      eejs.require('./templates/markdown_entry.ejs', {checked: checked_state}, module);
   return cb();
 }
 
