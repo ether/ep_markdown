@@ -1,3 +1,6 @@
 {
-  "ep_markdown.showMarkdown" : "Markdown megjelenítése"
+	"@metadata": {
+		"authors": []
+	},
+	"ep_markdown.showMarkdown": "Markdown megjelenítése"
 }
