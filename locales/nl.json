@@ -1,4 +1,6 @@
-  
 {
-  "ep_markdown.showMarkdown" : "Toon Markdown"
+	"@metadata": {
+		"authors": []
+	},
+	"ep_markdown.showMarkdown": "Toon Markdown"
 }
