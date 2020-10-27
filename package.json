@@ -18,5 +18,9 @@
   "peerDependencies": {
     "ep_headings2": "*"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "funding": {
+    "type": "individual",
+    "url": "http://etherpad.org/"
+  }
 }
