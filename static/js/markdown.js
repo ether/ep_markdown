@@ -1,16 +1,18 @@
-if (typeof exports === 'undefined') {
-  var exports = this.mymodule = {};
-}
+'use strict';
 
-exports.postAceInit = function (hook, context) {
+exports.postAceInit = (hook, context) => {
   const markdown = {
-    enable() {
-      $('iframe[name="ace_outer"]').contents().find('iframe').contents().find('#innerdocbody').addClass('markdown'); // add css class markdown
+    enable: () => {
+      // add css class markdown
+      $('iframe[name="ace_outer"]').contents().find('iframe').
+          contents().find('#innerdocbody').addClass('markdown');
       $('#underline').hide(); // no markdown support for these
       $('#strikethrough').hide();
     },
-    disable() {
-      $('iframe[name="ace_outer"]').contents().find('iframe').contents().find('#innerdocbody').removeClass('markdown'); // add css class markdown
+    disable: () => {
+      // add css class markdown
+      $('iframe[name="ace_outer"]').contents().find('iframe').
+          contents().find('#innerdocbody').removeClass('markdown');
       $('#underline').removeAttr('style'); // no markdown support for these
       $('#strikethrough').removeAttr('style');
     },
@@ -32,6 +34,5 @@ exports.postAceInit = function (hook, context) {
   });
 };
 
-exports.aceEditorCSS = function (hook_name, cb) {
-  return ['/ep_markdown/static/css/markdown.css'];
-}; // inner pad CSS
+// inner pad CSS
+exports.aceEditorCSS = (hookName, cb) => ['/ep_markdown/static/css/markdown.css'];

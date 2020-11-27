@@ -1,34 +1,18 @@
-/**
- * Copyright 2009 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS-IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+'use strict';
 
 const async = require('ep_etherpad-lite/node_modules/async');
 const Changeset = require('ep_etherpad-lite/static/js/Changeset');
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
 const ERR = require('ep_etherpad-lite/node_modules/async-stacktrace');
-const Security = require('ep_etherpad-lite/static/js/security');
 
-function getPadMarkdown(pad, revNum, callback) {
+exports.getPadMarkdown = (pad, revNum, callback) => {
   let atext = pad.atext;
   let Markdown;
   async.waterfall([
 
     // fetch revision atext
-    function (callback) {
-      if (revNum != undefined) {
+    (callback) => {
+      if (revNum !== undefined) {
         pad.getInternalRevisionAText(revNum, (err, revisionAtext) => {
           if (ERR(err, callback)) return;
           atext = revisionAtext;
@@ -40,7 +24,7 @@ function getPadMarkdown(pad, revNum, callback) {
     },
 
     // convert atext to Markdown
-    function (callback) {
+    (callback) => {
       Markdown = getMarkdownFromAtext(pad, atext);
       callback(null);
     },
@@ -51,15 +35,12 @@ function getPadMarkdown(pad, revNum, callback) {
     if (ERR(err, callback)) return;
     callback(null, Markdown);
   });
-}
+};
 
-exports.getPadMarkdown = getPadMarkdown;
-
-function getMarkdownFromAtext(pad, atext) {
+const getMarkdownFromAtext = (pad, atext) => {
   const apool = pad.apool();
   const textLines = atext.text.slice(0, -1).split('\n');
   const attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
-
   const tags = ['**', '*', '[]', '~~'];
   const props = ['bold', 'italic', 'underline', 'strikethrough'];
   const anumMap = {};
@@ -72,7 +53,15 @@ function getMarkdownFromAtext(pad, atext) {
   });
 
   const headingtags = ['# ', '## ', '### ', '#### ', '##### ', '###### ', '    '];
-  const headingprops = [['heading', 'h1'], ['heading', 'h2'], ['heading', 'h3'], ['heading', 'h4'], ['heading', 'h5'], ['heading', 'h6'], ['heading', 'code']];
+  const headingprops = [
+    ['heading', 'h1'],
+    ['heading', 'h2'],
+    ['heading', 'h3'],
+    ['heading', 'h4'],
+    ['heading', 'h5'],
+    ['heading', 'h6'],
+    ['heading', 'code'],
+  ];
   const headinganumMap = {};
 
   headingprops.forEach((prop, i) => {
@@ -91,7 +80,7 @@ function getMarkdownFromAtext(pad, atext) {
     }
   });
 
-  function getLineMarkdown(text, attribs) {
+  const getLineMarkdown = (text, attribs) => {
     const propVals = [false, false, false];
     const ENTER = 1;
     const STAY = 2;
@@ -106,27 +95,27 @@ function getMarkdownFromAtext(pad, atext) {
     let assem = Changeset.stringAssembler();
 
     const openTags = [];
-    function emitOpenTag(i) {
+    const emitOpenTag = (i) => {
       openTags.unshift(i);
       assem.append(tags[i]);
-    }
+    };
 
-    function emitCloseTag(i) {
+    const emitCloseTag = (i) => {
       openTags.shift();
       assem.append(tags[i]);
-    }
+    };
 
-    function orderdCloseTags(tags2close) {
+    const orderdCloseTags = (tags2close) => {
       for (let i = 0; i < openTags.length; i++) {
         for (let j = 0; j < tags2close.length; j++) {
-          if (tags2close[j] == openTags[i]) {
+          if (tags2close[j] === openTags[i]) {
             emitCloseTag(tags2close[j]);
             i--;
             break;
           }
         }
       }
-    }
+    };
 
     // start heading check
     let heading = false;
@@ -152,7 +141,7 @@ function getMarkdownFromAtext(pad, atext) {
 
     let idx = 0;
 
-    function processNextChars(numChars) {
+    const processNextChars = (numChars) => {
       if (numChars <= 0) {
         return;
       }
@@ -162,7 +151,7 @@ function getMarkdownFromAtext(pad, atext) {
 
       while (iter.hasNext()) {
         const o = iter.next();
-        var propChanged = false;
+        let propChanged = false;
         Changeset.eachAttribNumber(o.attribs, (a) => {
           if (a in anumMap) {
             const i = anumMap[a]; // i = 0 => bold, etc.
@@ -174,7 +163,7 @@ function getMarkdownFromAtext(pad, atext) {
             }
           }
         });
-        for (var i = 0; i < propVals.length; i++) {
+        for (let i = 0; i < propVals.length; i++) {
           if (propVals[i] === true) {
             propVals[i] = LEAVE;
             propChanged = true;
@@ -188,7 +177,7 @@ function getMarkdownFromAtext(pad, atext) {
         if (propChanged) {
           // leaving bold (e.g.) also leaves italics, etc.
           let left = false;
-          for (var i = 0; i < propVals.length; i++) {
+          for (let i = 0; i < propVals.length; i++) {
             const v = propVals[i];
             if (!left) {
               if (v === LEAVE) {
@@ -199,9 +188,9 @@ function getMarkdownFromAtext(pad, atext) {
             }
           }
 
-          var tags2close = [];
+          const tags2close = [];
 
-          for (var i = propVals.length - 1; i >= 0; i--) {
+          for (let i = propVals.length - 1; i >= 0; i--) {
             if (propVals[i] === LEAVE) {
               // emitCloseTag(i);
               tags2close.push(i);
@@ -214,7 +203,7 @@ function getMarkdownFromAtext(pad, atext) {
 
           orderdCloseTags(tags2close);
 
-          for (var i = 0; i < propVals.length; i++) {
+          for (let i = 0; i < propVals.length; i++) {
             if (propVals[i] === ENTER || propVals[i] === STAY) {
               emitOpenTag(i);
               propVals[i] = true;
@@ -242,8 +231,8 @@ function getMarkdownFromAtext(pad, atext) {
         assem.append(s);
       } // end iteration over spans in line
 
-      var tags2close = [];
-      for (var i = propVals.length - 1; i >= 0; i--) {
+      const tags2close = [];
+      for (let i = propVals.length - 1; i >= 0; i--) {
         if (propVals[i]) {
           tags2close.push(i);
           propVals[i] = false;
@@ -251,7 +240,7 @@ function getMarkdownFromAtext(pad, atext) {
       }
 
       orderdCloseTags(tags2close);
-    } // end processNextChars
+    }; // end processNextChars
 
     if (urls) {
       urls.forEach((urlData) => {
@@ -269,11 +258,13 @@ function getMarkdownFromAtext(pad, atext) {
 
     // replace &, _
     assem = assem.toString();
-    assem = assem.replace(/\&/g, '\\&');
-    assem = assem.replace(/\_/g, '\\_'); // this breaks Markdown math mode: $\sum_i^j$ becomes $\sum\_i^j$
+    assem = assem.replace(/&/g, '\\&');
+    // this breaks Markdown math mode: $\sum_i^j$ becomes $\sum\_i^j$
+    assem = assem.replace(/_/g, '\\_');
 
     return assem;
-  } // end getLineMarkdown
+  };
+  // end getLineMarkdown
   const pieces = [];
 
   // Need to deal with constraints imposed on HTML lists; can
@@ -288,8 +279,8 @@ function getMarkdownFromAtext(pad, atext) {
     const line = _analyzeLine(textLines[i], attribLines[i], apool);
     const lineContent = getLineMarkdown(line.text, line.aline);
 
-    if (line.listLevel)// If we are inside a list
-    {
+    // If we are inside a list
+    if (line.listLevel) {
       // do list stuff
       let whichList = -1; // index into lists or -1
       if (line.listLevel) {
@@ -301,25 +292,28 @@ function getMarkdownFromAtext(pad, atext) {
         }
       }
 
-      if (whichList >= lists.length)// means we are on a deeper level of indentation than the previous line
-      {
+      // means we are on a deeper level of indentation than the
+      // previous line
+      if (whichList >= lists.length) {
         lists.push([line.listLevel, line.listTypeName]);
       }
 
-      if (line.listTypeName == 'number') {
-        pieces.push(`\n${(new Array(line.listLevel * 4)).join(' ')}1. `, lineContent || '\n'); // problem here
+      if (line.listTypeName === 'number') {
+        pieces.push(`\n${(new Array(line.listLevel * 4)).
+            join(' ')}1. `, lineContent || '\n'); // problem here
       } else {
-        pieces.push(`\n${(new Array(line.listLevel * 4)).join(' ')}* `, lineContent || '\n'); // problem here
+        pieces.push(`\n${(new Array(line.listLevel * 4)).
+            join(' ')}* `, lineContent || '\n'); // problem here
       }
-    } else// outside any list
-    {
+    } else {
+      // outside any list
       pieces.push('\n', lineContent, '\n');
     }
   }
   return pieces.join('');
-}
+};
 
-function _analyzeLine(text, aline, apool) {
+const _analyzeLine = (text, aline, apool) => {
   const line = {};
 
   // identify list
@@ -348,12 +342,12 @@ function _analyzeLine(text, aline, apool) {
   }
 
   return line;
-}
+};
 
-exports.getPadMarkdownDocument = async function (padId, revNum, callback) {
+exports.getPadMarkdownDocument = async (padId, revNum, callback) => {
   const pad = await padManager.getPad(padId);
 
-  getPadMarkdown(pad, revNum, (err, Markdown) => {
+  exports.getPadMarkdown(pad, revNum, (err, Markdown) => {
     if (ERR(err, callback)) return;
     callback(null, Markdown);
   });
@@ -361,12 +355,13 @@ exports.getPadMarkdownDocument = async function (padId, revNum, callback) {
 
 // copied from ACE
 const _REGEX_WORDCHAR = /[\u0030-\u0039\u0041-\u005A\u0061-\u007A\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF\u0100-\u1FFF\u3040-\u9FFF\uF900-\uFDFF\uFE70-\uFEFE\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFDC]/;
-const _REGEX_SPACE = /\s/;
-const _REGEX_URLCHAR = new RegExp(`(${/[-:@a-zA-Z0-9_.,~%+\/\\?=&#;()$]/.source}|${_REGEX_WORDCHAR.source})`);
-const _REGEX_URL = new RegExp(`${/(?:(?:https?|s?ftp|ftps|file|smb|afp|nfs|(x-)?man|gopher|txmt):\/\/|mailto:)/.source + _REGEX_URLCHAR.source}*(?![:.,;])${_REGEX_URLCHAR.source}`, 'g');
-
+const _REGEX_URLCHAR = new RegExp(`(${  /[-:@a-zA-Z0-9_.,~%+\/\\?=&#;()$]/.source  }|
+${ _REGEX_WORDCHAR.source })`);
+const _REGEX_URL =
+   new RegExp(`${/(?:(?:https?|s?ftp|ftps|file|smb|afp|nfs|(x-)?man|gopher|txmt):\/\/|mailto:)/.
+       source + _REGEX_URLCHAR.source  }*(?![:.,;])${  _REGEX_URLCHAR.source}`, 'g');
 // returns null if no URLs, or [[startIndex1, url1], [startIndex2, url2], ...]
-function _findURLs(text) {
+const _findURLs = (text) => {
   _REGEX_URL.lastIndex = 0;
   let urls = null;
   let execResult;
@@ -377,4 +372,4 @@ function _findURLs(text) {
     urls.push([startIndex, url]);
   }
   return urls;
-}
+};
