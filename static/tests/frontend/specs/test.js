@@ -10,7 +10,6 @@ describe('Set formatting attributes and ensure ep_markdown displays properly', f
     const chrome$ = helper.padChrome$;
     const inner$ = helper.padInner$;
 
-    const $editorContainer = chrome$('#editorcontainer');
     const $editorContents = inner$('div');
 
     // clear pad

@@ -78,27 +78,8 @@ var setHTML = function (padID, html, callback) {
 
 var getMarkdownEndPointFor = function (padID, callback) {
   return `/p/${padID}/export/markdown`;
-//  return '/api/'+apiVersion+'/getMarkdown?apikey='+apiKey+"&padID="+padID;
-//  return '/api/'+apiVersion+'/getMarkdown?apikey='+apiKey+"&padID="+padID;
 };
 
 var buildHTML = function (body) {
   return `<html><body>${body}</body></html>`;
-};
-
-const textWithFormatting = function (size, text) {
-  if (!text) text = `this is ${size}`;
-
-  return `<span style='font-size:${size}'>${text}</span>`;
-};
-
-const regexWithFormatting = function (size, text) {
-  if (!text) text = `this is ${size}`;
-
-  const regex = `<span .*class=['|"].*size:${size}.*['|"].*>${text}<\/span>`;
-  // bug fix: if no other plugin on the Etherpad instance returns a value on getLineHTMLForExport() hook,
-  // data-size=(...) won't be replaced by class=size:(...), so we need a fallback regex
-  const fallbackRegex = `<span .*data-size=['|"]${size}['|"].*>${text}<\/span>`;
-
-  return `${regex} || ${fallbackRegex}`;
 };
