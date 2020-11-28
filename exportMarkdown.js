@@ -21,19 +21,16 @@ var padManager = require("ep_etherpad-lite/node/db/PadManager");
 var ERR = require("ep_etherpad-lite/node_modules/async-stacktrace");
 var Security = require('ep_etherpad-lite/static/js/security');
 
-function getPadMarkdown(pad, revNum, callback)
-{
+function getPadMarkdown(pad, revNum, callback) {
   var atext = pad.atext;
   var Markdown;
   async.waterfall([
 
   // fetch revision atext
-  function (callback)
-  {
+  function (callback) {
     if (revNum != undefined)
     {
-      pad.getInternalRevisionAText(revNum, function (err, revisionAtext)
-      {
+      pad.getInternalRevisionAText(revNum, function (err, revisionAtext) {
         if(ERR(err, callback)) return;
         atext = revisionAtext;
         callback();
@@ -46,15 +43,13 @@ function getPadMarkdown(pad, revNum, callback)
   },
 
   // convert atext to Markdown
-  function (callback)
-  {
+  function (callback) {
     Markdown = getMarkdownFromAtext(pad, atext);
     callback(null);
   }],
 
   // run final callback
-  function (err)
-  {
+  function (err) {
     if(ERR(err, callback)) return;
     callback(null, Markdown);
   });
@@ -62,8 +57,7 @@ function getPadMarkdown(pad, revNum, callback)
 
 exports.getPadMarkdown = getPadMarkdown;
 
-function getMarkdownFromAtext(pad, atext)
-{
+function getMarkdownFromAtext(pad, atext) {
   var apool = pad.apool();
   var textLines = atext.text.slice(0, -1).split('\n');
   var attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
@@ -72,8 +66,7 @@ function getMarkdownFromAtext(pad, atext)
   var props = ['bold', 'italic', 'underline', 'strikethrough'];
   var anumMap = {};
 
-  props.forEach(function (propName, i)
-  {
+  props.forEach(function (propName, i) {
     var propTrueNum = apool.putAttrib([propName, true], true);
     if (propTrueNum >= 0)
     {
@@ -85,8 +78,7 @@ function getMarkdownFromAtext(pad, atext)
   var headingprops = [['heading', 'h1'], ['heading', 'h2'], ['heading', 'h3'], ['heading', 'h4'], ['heading', 'h5'], ['heading', 'h6'], ['heading', 'code']];
   var headinganumMap = {};
 
-  headingprops.forEach(function (prop, i)
-  {
+  headingprops.forEach(function (prop, i) {
     var name;
     var value;
     if (typeof prop === 'object') {
@@ -103,8 +95,7 @@ function getMarkdownFromAtext(pad, atext)
     }
   });
 
-  function getLineMarkdown(text, attribs)
-  {
+  function getLineMarkdown(text, attribs) {
     var propVals = [false, false, false];
     var ENTER = 1;
     var STAY = 2;
@@ -119,20 +110,17 @@ function getMarkdownFromAtext(pad, atext)
     var assem = Changeset.stringAssembler();
 
     var openTags = [];
-    function emitOpenTag(i)
-    {
+    function emitOpenTag(i) {
       openTags.unshift(i);
       assem.append(tags[i]);
     }
 
-    function emitCloseTag(i)
-    {
+    function emitCloseTag(i) {
       openTags.shift();
       assem.append(tags[i]);
     }
     
-    function orderdCloseTags(tags2close)
-    {
+    function orderdCloseTags(tags2close) {
       for(var i=0;i<openTags.length;i++)
       {
         for(var j=0;j<tags2close.length;j++)
@@ -173,8 +161,7 @@ function getMarkdownFromAtext(pad, atext)
 
     var idx = 0;
 
-    function processNextChars(numChars)
-    {
+    function processNextChars(numChars) {
       if (numChars <= 0)
       {
         return;
@@ -187,8 +174,7 @@ function getMarkdownFromAtext(pad, atext)
       {
         var o = iter.next();
         var propChanged = false;
-        Changeset.eachAttribNumber(o.attribs, function (a)
-        {
+        Changeset.eachAttribNumber(o.attribs, function (a) {
           if (a in anumMap)
           {
             var i = anumMap[a]; // i = 0 => bold, etc.
@@ -306,8 +292,7 @@ function getMarkdownFromAtext(pad, atext)
 
     if (urls)
     {
-      urls.forEach(function (urlData)
-      {
+      urls.forEach(function (urlData) {
         var startIndex = urlData[0];
         var url = urlData[1];
         var urlLength = url.length;
@@ -378,8 +363,7 @@ function getMarkdownFromAtext(pad, atext)
   return pieces.join("");
 }
 
-function _analyzeLine(text, aline, apool)
-{
+function _analyzeLine(text, aline, apool) {
   var line = {};
 
   // identify list
@@ -417,12 +401,10 @@ function _analyzeLine(text, aline, apool)
   return line;
 }
 
-exports.getPadMarkdownDocument = async function (padId, revNum, callback)
-{
+exports.getPadMarkdownDocument = async function (padId, revNum, callback) {
   var pad = await padManager.getPad(padId)
 
-  getPadMarkdown(pad, revNum, function (err, Markdown)
-  {
+  getPadMarkdown(pad, revNum, function (err, Markdown) {
     if(ERR(err, callback)) return;
     callback(null, Markdown);
   });
@@ -435,8 +417,7 @@ var _REGEX_URLCHAR = new RegExp('(' + /[-:@a-zA-Z0-9_.,~%+\/\\?=&#;()$]/.source 
 var _REGEX_URL = new RegExp(/(?:(?:https?|s?ftp|ftps|file|smb|afp|nfs|(x-)?man|gopher|txmt):\/\/|mailto:)/.source + _REGEX_URLCHAR.source + '*(?![:.,;])' + _REGEX_URLCHAR.source, 'g');
 
 // returns null if no URLs, or [[startIndex1, url1], [startIndex2, url2], ...]
-function _findURLs(text)
-{
+function _findURLs(text) {
   _REGEX_URL.lastIndex = 0;
   var urls = null;
   var execResult;
