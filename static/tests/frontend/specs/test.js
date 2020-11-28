@@ -1,3 +1,5 @@
+'use strict';
+
 describe('Set formatting attributes and ensure ep_markdown displays properly', function () {
   // create a new pad before each test run
   beforeEach(function (cb) {
@@ -5,7 +7,7 @@ describe('Set formatting attributes and ensure ep_markdown displays properly', f
     this.timeout(60000);
   });
 
-  it('Creates bold section and ensures it is shown as **foo** when clicking Show Markdown', function (done) {
+  it('Bold section is shown as **foo** when clicking Show Markdown', function (done) {
     this.timeout(60000);
     const chrome$ = helper.padChrome$;
     const inner$ = helper.padInner$;

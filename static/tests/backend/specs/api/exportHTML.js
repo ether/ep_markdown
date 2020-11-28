@@ -1,3 +1,5 @@
+'use strict';
+
 const appUrl = 'http://localhost:9001';
 const apiVersion = 1;
 
@@ -22,10 +24,9 @@ describe('Import and Export markdown', function () {
   });
 
   context('when text has formatting', function () {
-    before(function () {
-      html = function () {
-        return buildHTML('<i>italic</i><b>bold</b><ul><li>derp</li></ul><ol><li>derp2</li></ol><u>underline</u>');
-      };
+    before(async function () {
+      html = () => buildHTML(
+          '<i>italic</i><b>bold</b><ul><li>derp</li></ul><ol><li>derp2</li></ol><u>underline</u>');
     });
 
     it('returns ok', function (done) {
@@ -40,7 +41,9 @@ describe('Import and Export markdown', function () {
             if (markdown.indexOf('*italic*') === -1) throw new Error('Unable to export italic');
             if (markdown.indexOf('**bold**') === -1) throw new Error('Unable to export bold');
             if (markdown.indexOf('* derp') === -1) throw new Error('Unable to export UL');
-            if (markdown.indexOf('[]underline[]') === -1) throw new Error('Unable to export underline');
+            if (markdown.indexOf('[]underline[]') === -1) {
+              throw new Error('Unable to export underline');
+            }
           })
           .end(done);
     });
@@ -49,8 +52,8 @@ describe('Import and Export markdown', function () {
 
 // Loads the APIKEY.txt content into a string, and returns it.
 const getApiKey = function () {
-  const etherpad_root = '/../../../../../../ep_etherpad-lite/../..';
-  const filePath = path.join(__dirname, `${etherpad_root}/APIKEY.txt`);
+  const etherpadRoot = '/../../../../../../ep_etherpad-lite/../..';
+  const filePath = path.join(__dirname, `${etherpadRoot}/APIKEY.txt`);
   const apiKey = fs.readFileSync(filePath, {encoding: 'utf-8'});
   return apiKey.replace(/\n$/, '');
 };
@@ -58,16 +61,15 @@ const getApiKey = function () {
 const apiKey = getApiKey();
 
 // Creates a pad and returns the pad id. Calls the callback when finished.
-var createPad = function (padID, callback) {
+const createPad = (padID, callback) => {
   api.get(`/api/${apiVersion}/createPad?apikey=${apiKey}&padID=${padID}`)
       .end((err, res) => {
         if (err || (res.body.code !== 0)) callback(new Error('Unable to create new Pad'));
-
         callback(padID);
       });
 };
 
-var setHTML = function (padID, html, callback) {
+const setHTML = (padID, html, callback) => {
   api.get(`/api/${apiVersion}/setHTML?apikey=${apiKey}&padID=${padID}&html=${html}`)
       .end((err, res) => {
         if (err || (res.body.code !== 0)) callback(new Error('Unable to set pad HTML'));
@@ -76,10 +78,6 @@ var setHTML = function (padID, html, callback) {
       });
 };
 
-var getMarkdownEndPointFor = function (padID, callback) {
-  return `/p/${padID}/export/markdown`;
-};
+const getMarkdownEndPointFor = (padID, callback) => `/p/${padID}/export/markdown`;
 
-var buildHTML = function (body) {
-  return `<html><body>${body}</body></html>`;
-};
+const buildHTML = (body) => `<html><body>${body}</body></html>`;
