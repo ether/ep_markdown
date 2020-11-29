@@ -12,7 +12,7 @@ exports.getPadMarkdown = (pad, revNum, callback) => {
 
     // fetch revision atext
     (callback) => {
-      if (revNum !== undefined) {
+      if (revNum != null) {
         pad.getInternalRevisionAText(revNum, (err, revisionAtext) => {
           if (ERR(err, callback)) return;
           atext = revisionAtext;
