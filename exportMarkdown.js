@@ -4,6 +4,7 @@ const async = require('ep_etherpad-lite/node_modules/async');
 const Changeset = require('ep_etherpad-lite/static/js/Changeset');
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
 const ERR = require('ep_etherpad-lite/node_modules/async-stacktrace');
+const util = require('util');
 
 exports.getPadMarkdown = (pad, revNum, callback) => {
   let atext = pad.atext;
@@ -13,7 +14,7 @@ exports.getPadMarkdown = (pad, revNum, callback) => {
     // fetch revision atext
     (callback) => {
       if (revNum != null) {
-        pad.getInternalRevisionAText(revNum, (err, revisionAtext) => {
+        util.callbackify(pad.getInternalRevisionAText)(revNum, (err, revisionAtext) => {
           if (ERR(err, callback)) return;
           atext = revisionAtext;
           callback();
