@@ -299,11 +299,11 @@ const getMarkdownFromAtext = (pad, atext) => {
       }
 
       if (line.listTypeName === 'number') {
-        pieces.push(`\n${(new Array(line.listLevel * 4)).
-            join(' ')}1. `, lineContent || '\n'); // problem here
+        pieces.push(`\n${(new Array(line.listLevel * 4))
+            .join(' ')}1. `, lineContent || '\n'); // problem here
       } else {
-        pieces.push(`\n${(new Array(line.listLevel * 4)).
-            join(' ')}* `, lineContent || '\n'); // problem here
+        pieces.push(`\n${(new Array(line.listLevel * 4))
+            .join(' ')}* `, lineContent || '\n'); // problem here
       }
     } else {
       // outside any list
