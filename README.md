@@ -1,3 +1,5 @@
+![Publish Status](https://github.com/ether/ep_markdown/workflows/Node.js%20Package/badge.svg) ![Backend Tests Status](https://github.com/ether/ep_markdown/workflows/Backend%20tests/badge.svg)
+
 Markdown editing in Etherpad
 ============================
 
