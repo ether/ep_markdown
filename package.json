@@ -44,5 +44,10 @@
   },
   "engines": {
     "node": ">=10.13.0"
+  },
+  "peerDependenciesMeta": {
+    "ep_headings2": {
+      "optional": true
+    }
   }
 }
