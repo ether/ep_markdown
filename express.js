@@ -1,15 +1,17 @@
-var exportMarkdown = require('./exportMarkdown');
+'use strict';
 
-exports.expressCreateServer = function (hook_name, args, cb) {
-  args.app.get('/p/:pad/:rev?/export/markdown', function(req, res, next) {
-    var padID = req.params.pad;
-    var revision = req.params.rev ? req.params.rev : null;
+const exportMarkdown = require('./exportMarkdown');
 
-    exportMarkdown.getPadMarkdownDocument(padID, revision, function(err, result) {
-      res.setHeader('Content-disposition', 'attachment; filename='+padID+'.md');
+exports.expressCreateServer = (hookName, args, cb) => {
+  args.app.get('/p/:pad/:rev?/export/markdown', (req, res, next) => {
+    const padID = req.params.pad;
+    const revision = req.params.rev ? req.params.rev : null;
+
+    exportMarkdown.getPadMarkdownDocument(padID, revision, (err, result) => {
+      res.attachment(`${padID}.md`);
       res.contentType('plain/text');
       res.send(result);
     });
   });
+  return cb();
 };
-

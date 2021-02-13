@@ -1,3 +1,8 @@
 {
-  "ep_markdown.showMarkdown" : "Afficher en markdown"
+	"@metadata": {
+		"authors": [
+			"Verdy p"
+		]
+	},
+	"ep_markdown.showMarkdown": "Afficher en Markdown"
 }
