@@ -1,18 +1,17 @@
 'use strict';
 
-const appUrl = 'http://localhost:9001';
-const apiVersion = 1;
-
-const supertest = require('ep_etherpad-lite/node_modules/supertest');
-const fs = require('fs');
-const path = require('path');
-const api = supertest(appUrl);
+const common = require('ep_etherpad-lite/tests/backend/common');
 const randomString = require('ep_etherpad-lite/static/js/pad_utils').randomString;
 
+let agent;
+const apiKey = common.apiKey;
+const apiVersion = 1;
 
 describe('Import and Export markdown', function () {
   let padID;
   let html;
+
+  before(async function () { agent = await common.init(); });
 
   // create a new pad before each test run
   beforeEach(function (done) {
@@ -30,12 +29,12 @@ describe('Import and Export markdown', function () {
     });
 
     it('returns ok', function (done) {
-      api.get(getMarkdownEndPointFor(padID))
+      agent.get(getMarkdownEndPointFor(padID))
           .expect(200, done);
     });
 
     it('returns Markdown correctly', function (done) {
-      api.get(getMarkdownEndPointFor(padID))
+      agent.get(getMarkdownEndPointFor(padID))
           .expect((res) => {
             const markdown = res.text;
             if (markdown.indexOf('*italic*') === -1) throw new Error('Unable to export italic');
@@ -50,19 +49,9 @@ describe('Import and Export markdown', function () {
   });
 });
 
-// Loads the APIKEY.txt content into a string, and returns it.
-const getApiKey = function () {
-  const etherpadRoot = '/../../../../../../ep_etherpad-lite/../..';
-  const filePath = path.join(__dirname, `${etherpadRoot}/APIKEY.txt`);
-  const apiKey = fs.readFileSync(filePath, {encoding: 'utf-8'});
-  return apiKey.replace(/\n$/, '');
-};
-
-const apiKey = getApiKey();
-
 // Creates a pad and returns the pad id. Calls the callback when finished.
 const createPad = (padID, callback) => {
-  api.get(`/api/${apiVersion}/createPad?apikey=${apiKey}&padID=${padID}`)
+  agent.get(`/api/${apiVersion}/createPad?apikey=${apiKey}&padID=${padID}`)
       .end((err, res) => {
         if (err || (res.body.code !== 0)) callback(new Error('Unable to create new Pad'));
         callback(padID);
@@ -70,7 +59,7 @@ const createPad = (padID, callback) => {
 };
 
 const setHTML = (padID, html, callback) => {
-  api.get(`/api/${apiVersion}/setHTML?apikey=${apiKey}&padID=${padID}&html=${html}`)
+  agent.get(`/api/${apiVersion}/setHTML?apikey=${apiKey}&padID=${padID}&html=${html}`)
       .end((err, res) => {
         if (err || (res.body.code !== 0)) callback(new Error('Unable to set pad HTML'));
 
