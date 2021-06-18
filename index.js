@@ -3,6 +3,7 @@
 const eejs = require('ep_etherpad-lite/node/eejs');
 const settings = require('ep_etherpad-lite/node/utils/Settings');
 const fs = require('fs');
+const fsp = fs.promises;
 
 exports.eejsBlock_exportColumn = (hookName, args, cb) => {
   args.content += eejs.require('./templates/exportcolumn.html', {}, module);
@@ -31,18 +32,16 @@ exports.eejsBlock_mySettings = (hookName, args, cb) => {
   return cb();
 };
 
-exports.import = (hookName, args, callback) => {
-  if (args.fileEnding.indexOf('.md') === -1) return callback();
+exports.import = async (hookName, {destFile, fileEnding, srcFile}) => {
+  if (args.fileEnding.indexOf('.md') === -1) return;
   // It is Markdown file, let's go!
 
-  const markdown = fs.readFileSync(args.srcFile, 'utf-8');
+  const markdown = await fsp.readFile(srcFile, 'utf8');
   const showdown = require('showdown');
   const converter = new showdown.Converter({completeHTMLDocument: true});
 
   const html = converter.makeHtml(markdown);
 
-  fs.writeFile(args.destFile, html, 'utf8', (err) => {
-    if (err) callback(err, null);
-    callback(args.destFile);
-  });
+  await fsp.writeFile(destFile, html, 'utf8');
+  return destFile;
 };

@@ -2,16 +2,13 @@
 
 const exportMarkdown = require('./exportMarkdown');
 
-exports.expressCreateServer = (hookName, args, cb) => {
-  args.app.get('/p/:pad/:rev?/export/markdown', (req, res, next) => {
-    const padID = req.params.pad;
-    const revision = req.params.rev ? req.params.rev : null;
-
-    exportMarkdown.getPadMarkdownDocument(padID, revision, (err, result) => {
-      res.attachment(`${padID}.md`);
+exports.expressCreateServer = (hookName, {app}) => {
+  app.get('/p/:padId/:revNum?/export/markdown', (req, res, next) => {
+    (async () => {
+      const {padId, revNum} = req.params;
+      res.attachment(`${padId}.md`);
       res.contentType('plain/text');
-      res.send(result);
-    });
+      res.send(await exportMarkdown.getPadMarkdownDocument(padId, revNum));
+    })().catch((err) => next(err || new Error(err)));
   });
-  return cb();
 };

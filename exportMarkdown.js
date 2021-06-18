@@ -1,42 +1,7 @@
 'use strict';
 
-const async = require('ep_etherpad-lite/node_modules/async');
 const Changeset = require('ep_etherpad-lite/static/js/Changeset');
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
-const ERR = require('ep_etherpad-lite/node_modules/async-stacktrace');
-const util = require('util');
-
-const getPadMarkdown = (pad, revNum, callback) => {
-  let atext = pad.atext;
-  let Markdown;
-  async.waterfall([
-
-    // fetch revision atext
-    (callback) => {
-      if (revNum != null) {
-        util.callbackify(pad.getInternalRevisionAText)(revNum, (err, revisionAtext) => {
-          if (ERR(err, callback)) return;
-          atext = revisionAtext;
-          callback();
-        });
-      } else {
-        callback(null);
-      }
-    },
-
-    // convert atext to Markdown
-    (callback) => {
-      Markdown = getMarkdownFromAtext(pad, atext);
-      callback(null);
-    },
-  ],
-
-  // run final callback
-  (err) => {
-    if (ERR(err, callback)) return;
-    callback(null, Markdown);
-  });
-};
 
 const getMarkdownFromAtext = (pad, atext) => {
   const apool = pad.apool();
@@ -345,14 +310,13 @@ const _analyzeLine = (text, aline, apool) => {
   return line;
 };
 
-exports.getPadMarkdownDocument = async (padId, revNum, callback) => {
-  const pad = await padManager.getPad(padId);
-
-  getPadMarkdown(pad, revNum, (err, Markdown) => {
-    if (ERR(err, callback)) return;
-    callback(null, Markdown);
-  });
+const getPadMarkdown = async (pad, revNum) => {
+  const atext = revNum == null ? pad.atext : await pad.getInternalRevisionAText(revNum);
+  return getMarkdownFromAtext(pad, atext);
 };
+
+exports.getPadMarkdownDocument =
+    async (padId, revNum) => await getPadMarkdown(await padManager.getPad(padId), revNum);
 
 // copied from ACE
 const _REGEX_WORDCHAR = new RegExp([
