@@ -5,26 +5,26 @@ const settings = require('ep_etherpad-lite/node/utils/Settings');
 const fs = require('fs');
 const fsp = fs.promises;
 
-exports.eejsBlock_exportColumn = (hookName, args) => {
-  args.content += eejs.require('./templates/exportcolumn.html', {}, module);
+exports.eejsBlock_exportColumn = (hookName, context) => {
+  context.content += eejs.require('./templates/exportcolumn.html', {}, module);
 };
 
-exports.eejsBlock_scripts = (hookName, args) => {
-  args.content += eejs.require('./templates/scripts.html', {}, module);
+exports.eejsBlock_scripts = (hookName, context) => {
+  context.content += eejs.require('./templates/scripts.html', {}, module);
 };
 
-exports.eejsBlock_styles = (hookName, args) => {
-  args.content += eejs.require('./templates/styles.html', {}, module);
+exports.eejsBlock_styles = (hookName, context) => {
+  context.content += eejs.require('./templates/styles.html', {}, module);
 };
 
-exports.eejsBlock_mySettings = (hookName, args) => {
+exports.eejsBlock_mySettings = (hookName, context) => {
   let checkedState = 'unchecked';
   if (!settings.ep_markdown_default) {
     checkedState = 'unchecked';
   } else if (settings.ep_markdown_default === true) {
     checkedState = 'checked';
   }
-  args.content +=
+  context.content +=
       eejs.require('./templates/markdown_entry.ejs', {checked: checkedState}, module);
 };
 

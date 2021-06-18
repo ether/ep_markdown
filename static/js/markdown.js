@@ -1,6 +1,6 @@
 'use strict';
 
-exports.postAceInit = (hook, context) => {
+exports.postAceInit = (hookName, context) => {
   const markdown = {
     enable: () => {
       // add css class markdown
@@ -35,4 +35,4 @@ exports.postAceInit = (hook, context) => {
 };
 
 // inner pad CSS
-exports.aceEditorCSS = (hookName, cb) => ['/ep_markdown/static/css/markdown.css'];
+exports.aceEditorCSS = (hookName, context) => ['/ep_markdown/static/css/markdown.css'];
