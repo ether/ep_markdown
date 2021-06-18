@@ -6,7 +6,7 @@ const padManager = require('ep_etherpad-lite/node/db/PadManager');
 const ERR = require('ep_etherpad-lite/node_modules/async-stacktrace');
 const util = require('util');
 
-exports.getPadMarkdown = (pad, revNum, callback) => {
+const getPadMarkdown = (pad, revNum, callback) => {
   let atext = pad.atext;
   let Markdown;
   async.waterfall([
@@ -348,7 +348,7 @@ const _analyzeLine = (text, aline, apool) => {
 exports.getPadMarkdownDocument = async (padId, revNum, callback) => {
   const pad = await padManager.getPad(padId);
 
-  exports.getPadMarkdown(pad, revNum, (err, Markdown) => {
+  getPadMarkdown(pad, revNum, (err, Markdown) => {
     if (ERR(err, callback)) return;
     callback(null, Markdown);
   });
