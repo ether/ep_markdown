@@ -29,8 +29,7 @@ exports.eejsBlock_mySettings = (hookName, context) => {
 };
 
 exports.import = async (hookName, {destFile, fileEnding, srcFile}) => {
-  if (args.fileEnding.indexOf('.md') === -1) return;
-  // It is Markdown file, let's go!
+  if (fileEnding !== '.md') return;
 
   const markdown = await fsp.readFile(srcFile, 'utf8');
   const showdown = require('showdown');
