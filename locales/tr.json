@@ -1,8 +1,9 @@
 {
 	"@metadata": {
 		"authors": [
+			"Hedda",
 			"MuratTheTurkish"
 		]
 	},
-	"ep_markdown.showMarkdown": "İndirimi Göster"
+	"ep_markdown.showMarkdown": "İşaretlemeyi Göster"
 }
