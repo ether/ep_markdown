@@ -25,26 +25,16 @@
     "url": "https://etherpad.org/"
   },
   "devDependencies": {
-    "eslint": "^7.32.0",
-    "eslint-config-etherpad": "^2.0.2",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-mocha": "^9.0.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prefer-arrow": "^1.2.3",
-    "eslint-plugin-promise": "^5.1.1",
-    "eslint-plugin-you-dont-need-lodash-underscore": "^6.12.0",
-    "eslint-plugin-cypress": "^2.12.1"
-  },
-  "eslintConfig": {
-    "root": true,
-    "extends": "etherpad/plugin"
+    "eslint": "^8.9.0",
+    "eslint-config-etherpad": "^3.0.1",
+    "typescript": "^4.5.5"
   },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
   "engines": {
-    "node": ">=12.13.0"
+    "node": ">=12.17.0"
   },
   "peerDependenciesMeta": {
     "ep_headings2": {
