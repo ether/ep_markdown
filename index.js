@@ -9,10 +9,6 @@ exports.eejsBlock_exportColumn = (hookName, context) => {
   context.content += eejs.require('./templates/exportcolumn.html', {}, module);
 };
 
-exports.eejsBlock_scripts = (hookName, context) => {
-  context.content += eejs.require('./templates/scripts.html', {}, module);
-};
-
 exports.eejsBlock_styles = (hookName, context) => {
   context.content += eejs.require('./templates/styles.html', {}, module);
 };
