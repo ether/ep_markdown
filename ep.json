@@ -5,7 +5,6 @@
       "hooks":{
         "expressCreateServer": "ep_markdown/express",
         "eejsBlock_exportColumn": "ep_markdown/index",
-        "eejsBlock_scripts": "ep_markdown/index",
         "eejsBlock_mySettings": "ep_markdown/index",
         "import": "ep_markdown/index"
       },

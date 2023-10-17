@@ -1,6 +1,10 @@
 'use strict';
 
 exports.postAceInit = (hookName, context) => {
+  const padRootPath = new RegExp(/.*\/p\/[^/]+/)
+      .exec(document.location.pathname) || clientVars.padId;
+  $('#exportmarkdowna').attr('href', `${padRootPath}/export/markdown`);
+
   const enable = () => {
     // add css class markdown
     $('iframe[name="ace_outer"]').contents().find('iframe')
