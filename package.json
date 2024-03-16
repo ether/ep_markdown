@@ -1,7 +1,7 @@
 {
   "name": "ep_markdown",
   "description": "Edit and Export as Markdown in Etherpad",
-  "version": "0.1.74",
+  "version": "0.1.75",
   "author": {
     "name": "John McLear",
     "email": "john@mclear.co.uk",
@@ -15,26 +15,22 @@
     "showdown": "*"
   },
   "contributors": [],
-  "peerDependencies": {
-    "ep_etherpad-lite": ">=1.8.6",
-    "ep_headings2": "*"
-  },
   "license": "Apache-2.0",
   "funding": {
     "type": "individual",
     "url": "https://etherpad.org/"
   },
   "devDependencies": {
-    "eslint": "^8.52.0",
-    "eslint-config-etherpad": "^3.0.22",
-    "typescript": "^4.9.5"
+    "eslint": "^8.57.0",
+    "eslint-config-etherpad": "^4.0.4",
+    "typescript": "^5.4.2"
   },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint --fix ."
   },
   "engines": {
-    "node": ">=12.17.0"
+    "node": ">=18.0.0"
   },
   "peerDependenciesMeta": {
     "ep_headings2": {
