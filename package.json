@@ -1,7 +1,7 @@
 {
   "name": "ep_markdown",
   "description": "Edit and Export as Markdown in Etherpad",
-  "version": "0.1.75",
+  "version": "0.1.76",
   "author": {
     "name": "John McLear",
     "email": "john@mclear.co.uk",
