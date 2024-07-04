@@ -2,6 +2,7 @@
 
 const Changeset = require('ep_etherpad-lite/static/js/Changeset');
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
+const readOnlyManager = require('ep_etherpad-lite/node/db/ReadOnlyManager');
 
 const getMarkdownFromAtext = (pad, atext) => {
   const apool = pad.apool();
@@ -311,12 +312,23 @@ const _analyzeLine = (text, aline, apool) => {
 };
 
 const getPadMarkdown = async (pad, revNum) => {
-  const atext = revNum == null ? pad.atext : await pad.getInternalRevisionAText(revNum);
+  const atext = revNum == null|undefined ? pad.atext : await pad.getInternalRevisionAText(revNum);
   return getMarkdownFromAtext(pad, atext);
 };
 
+const getPadIdIfReadOnly = async (padId) => {
+  if(padId.startsWith("r.")) {
+    return await readOnlyManager.getPadId(padId);
+  } else {
+    return padId
+  }
+}
+
 exports.getPadMarkdownDocument =
-    async (padId, revNum) => await getPadMarkdown(await padManager.getPad(padId), revNum);
+    async (padId, revNum) => {
+      padId = await getPadIdIfReadOnly(padId);
+      return await getPadMarkdown(await padManager.getPad(padId), revNum);
+    }
 
 // copied from ACE
 const _REGEX_WORDCHAR = new RegExp([
