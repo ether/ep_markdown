@@ -2,8 +2,8 @@
 
 const eejs = require('ep_etherpad-lite/node/eejs');
 const settings = require('ep_etherpad-lite/node/utils/Settings');
-const fs = require('fs');
-const fsp = fs.promises;
+import {promises} from 'fs';
+const fsp = promises
 
 exports.eejsBlock_exportColumn = (hookName, context) => {
   context.content += eejs.require('./templates/exportcolumn.html', {}, module);

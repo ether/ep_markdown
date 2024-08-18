@@ -1,12 +1,16 @@
 'use strict';
 
-const Changeset = require('ep_etherpad-lite/static/js/Changeset');
+
+import {splitAttributionLines, opIterator,subattribution,eachAttribNumber, opAttributeValue} from 'ep_etherpad-lite/static/js/Changeset'
+import {StringIterator} from 'ep_etherpad-lite/static/js/StringIterator'
+import {StringAssembler} from 'ep_etherpad-lite/static/js/StringAssembler'
+
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
 
 const getMarkdownFromAtext = (pad, atext) => {
   const apool = pad.apool();
   const textLines = atext.text.slice(0, -1).split('\n');
-  const attribLines = Changeset.splitAttributionLines(atext.attribs, atext.text);
+  const attribLines = splitAttributionLines(atext.attribs, atext.text);
   const tags = ['**', '*', '[]', '~~'];
   const props = ['bold', 'italic', 'underline', 'strikethrough'];
   const anumMap = {};
@@ -57,8 +61,8 @@ const getMarkdownFromAtext = (pad, atext) => {
     // <b>Just bold<b> <b><i>Bold and italics</i></b> <i>Just italics</i>
     // becomes
     // <b>Just bold <i>Bold and italics</i></b> <i>Just italics</i>
-    const taker = Changeset.stringIterator(text);
-    let assem = Changeset.stringAssembler();
+    const taker = new StringIterator(text);
+    let assem = new StringAssembler();
 
     const openTags = [];
     const emitOpenTag = (i) => {
@@ -86,12 +90,12 @@ const getMarkdownFromAtext = (pad, atext) => {
     // start heading check
     let heading = false;
     let deletedAsterisk = false; // we need to delete * from the beginning of the heading line
-    const iter2 = Changeset.opIterator(Changeset.subattribution(attribs, 0, 1));
+    const iter2 = opIterator(subattribution(attribs, 0, 1));
     if (iter2.hasNext()) {
       const o2 = iter2.next();
 
       // iterate through attributes
-      Changeset.eachAttribNumber(o2.attribs, (a) => {
+      eachAttribNumber(o2.attribs, (a) => {
         if (a in headinganumMap) {
           const i = headinganumMap[a]; // i = 0 => bold, etc.
           heading = headingtags[i];
@@ -112,13 +116,13 @@ const getMarkdownFromAtext = (pad, atext) => {
         return;
       }
 
-      const iter = Changeset.opIterator(Changeset.subattribution(attribs, idx, idx + numChars));
+      const iter = opIterator(subattribution(attribs, idx, idx + numChars));
       idx += numChars;
 
       while (iter.hasNext()) {
         const o = iter.next();
         let propChanged = false;
-        Changeset.eachAttribNumber(o.attribs, (a) => {
+        eachAttribNumber(o.attribs, (a) => {
           if (a in anumMap) {
             const i = anumMap[a]; // i = 0 => bold, etc.
             if (!propVals[i]) {
@@ -286,9 +290,9 @@ const _analyzeLine = (text, aline, apool) => {
   let lineMarker = 0;
   line.listLevel = 0;
   if (aline) {
-    const opIter = Changeset.opIterator(aline);
+    const opIter = opIterator(aline);
     if (opIter.hasNext()) {
-      let listType = Changeset.opAttributeValue(opIter.next(), 'list', apool);
+      let listType = opAttributeValue(opIter.next(), 'list', apool);
       if (listType) {
         lineMarker = 1;
         listType = /([a-z]+)([12345678])/.exec(listType);
@@ -301,7 +305,7 @@ const _analyzeLine = (text, aline, apool) => {
   }
   if (lineMarker) {
     line.text = text.substring(1);
-    line.aline = Changeset.subattribution(aline, 1);
+    line.aline = subattribution(aline, 1);
   } else {
     line.text = text;
     line.aline = aline;
