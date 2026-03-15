@@ -1,42 +1,39 @@
-![Publish Status](https://github.com/ether/ep_markdown/workflows/Node.js%20Package/badge.svg) ![Backend Tests Status](https://github.com/ether/ep_markdown/workflows/Backend%20tests/badge.svg)
+# ep_fountain
 
-Markdown editing in Etherpad
-============================
+Etherpad plugin for collaborative [Fountain](https://fountain.io) screenplay editing.
 
-![Alt Text](http://i.imgur.com/bGZHFqH.gif "ep_markdown in action")
+## Features (Phase 1)
 
-Features
-========
+- Real-time Fountain syntax highlighting in the editor
+- Line-type detection: scene headings, characters, dialogue, parentheticals, transitions, actions, sections, synopses, notes, lyrics, page breaks
+- Screenplay-standard formatting with Courier Prime font
+- Collaborative editing support (attributes survive Changeset/Easysync operations)
 
-* Use the normal editbar buttons to add markdown.
-* Import as Markdown (automatically applies styling / text attributes).
-* Export as Markdown.
-* Localizations.
+## Installation
 
-Usage
-=====
+```bash
+npm install ep_fountain
+```
 
-To enable Markdown view click Settings -> Markdown
+Or clone into your Etherpad `node_modules/` directory:
 
-Limitations
-===========
-This plugin is not designed for you to write Markdown and it format that markdown with styling.  So you can't expect to type \*\*blah\*\* and expect to see blah in bold.  You can however type blah, set it as bold and then click "Show as Markdown" and it will show \*\*bold\*\*.  I will not be adding support for supporting typing in markdown which will render to a style because it will be impossible to handle character control.
+```bash
+cd /path/to/etherpad-lite/node_modules
+git clone https://github.com/adn-dan/ep_fountain_2.git ep_fountain
+```
 
-Setting as default
-==================
+## Development with Docker
 
-Paste the below into your settings.
+```bash
+docker run -d --name etherpad -p 9001:9001 \
+  -v $(pwd):/opt/etherpad-lite/node_modules/ep_fountain \
+  etherpad/etherpad
+```
 
-"ep_markdown_default": true,
+## Fountain Syntax Reference
 
-Todo
-====
-* Support ALL styles fully (please let me know what does / doesn't work)
-* Create markdown icon for export menu
-* Better code block support (currently it's line by line)
-* Import Markdown (and it applies formatting automatically)
+See [fountain.io/syntax](https://fountain.io/syntax) for the complete specification.
 
-Requirements
-============
+## License
 
-Etherpad 1.8.1
+MIT

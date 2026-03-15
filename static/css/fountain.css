@@ -1,0 +1,197 @@
+/*
+ * ep_fountain — Fountain screenplay styles for Etherpad
+ *
+ * Standard US Letter screenplay formatting:
+ * - Page: 8.5" x 11", margins: 1.5" left, 1" right, 1" top/bottom
+ * - Font: Courier Prime 12pt (monospaced)
+ * - 1 page ≈ 55 lines
+ */
+
+/* ========== Base Editor Styles ========== */
+
+body, #innerdocbody {
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace !important;
+  font-size: 12pt !important;
+  line-height: 1.0 !important;
+  color: #1a1a1a;
+  max-width: 8.5in;
+  margin: 0 auto;
+  padding: 1in 1in 1in 1.5in;
+}
+
+/* ========== Scene Heading ========== */
+
+.fountain-line.fountain-scene_heading {
+  font-weight: bold !important;
+  text-transform: uppercase;
+  padding: 4px 4px 4px 8px;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  background-color: rgba(200, 210, 230, 0.2);
+  border-left: 3px solid #5b7daa;
+}
+
+/* ========== Character ========== */
+
+.fountain-line.fountain-character {
+  text-transform: uppercase;
+  margin-left: 37%;
+  margin-top: 1em;
+  margin-bottom: 0;
+  font-weight: normal;
+}
+
+/* ========== Dialogue ========== */
+
+.fountain-line.fountain-dialogue {
+  margin-left: 25%;
+  max-width: 35%;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ========== Parenthetical ========== */
+
+.fountain-line.fountain-parenthetical {
+  margin-left: 30%;
+  max-width: 25%;
+  font-style: italic;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ========== Transition ========== */
+
+.fountain-line.fountain-transition {
+  text-transform: uppercase;
+  text-align: right;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+/* ========== Action ========== */
+
+.fountain-line.fountain-action {
+  width: 100%;
+  margin-top: 0.5em;
+  margin-bottom: 0;
+}
+
+/* ========== Centered ========== */
+
+.fountain-line.fountain-centered {
+  text-align: center;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+/* ========== Sections (h1-h6) ========== */
+
+.fountain-line.fountain-section_h1 {
+  font-size: 1.6em;
+  font-weight: bold;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  color: #2c3e50;
+}
+
+.fountain-line.fountain-section_h2 {
+  font-size: 1.4em;
+  font-weight: bold;
+  margin-top: 0.8em;
+  margin-bottom: 0.4em;
+  color: #34495e;
+}
+
+.fountain-line.fountain-section_h3 {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-top: 0.6em;
+  margin-bottom: 0.3em;
+  color: #4a6274;
+}
+
+.fountain-line.fountain-section_h4 {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #5a7284;
+}
+
+.fountain-line.fountain-section_h5 {
+  font-size: 1.05em;
+  font-weight: bold;
+  color: #6a8294;
+}
+
+.fountain-line.fountain-section_h6 {
+  font-size: 1.0em;
+  font-weight: bold;
+  color: #7a92a4;
+}
+
+/* ========== Synopsis ========== */
+
+.fountain-line.fountain-synopsis {
+  font-style: italic;
+  color: #888;
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
+/* ========== Note ========== */
+
+.fountain-line.fountain-note {
+  font-style: italic;
+  background-color: rgba(255, 255, 200, 0.4);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #665500;
+}
+
+/* ========== Lyrics ========== */
+
+.fountain-line.fountain-lyrics {
+  font-style: italic;
+  margin-left: 15%;
+}
+
+/* ========== Page Break ========== */
+
+.fountain-line.fountain-page_break {
+  border-bottom: 2px solid #999;
+  margin: 1.5em 0;
+  height: 0;
+  overflow: hidden;
+  font-size: 0;
+  line-height: 0;
+}
+
+/* ========== Title Page ========== */
+
+.fountain-line.fountain-title_key {
+  font-weight: bold;
+  text-align: center;
+  margin-top: 0.5em;
+}
+
+.fountain-line.fountain-title_value {
+  text-align: center;
+  margin-bottom: 0.5em;
+}
+
+/* ========== Boneyard (comments) ========== */
+
+.fountain-line.fountain-boneyard {
+  color: #999;
+  background-color: rgba(0, 0, 0, 0.03);
+  font-style: italic;
+  text-decoration: line-through;
+}
+
+/* ========== Toolbar Button ========== */
+
+.fountain-icon {
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace !important;
+  font-weight: bold;
+  font-size: 16px;
+}
