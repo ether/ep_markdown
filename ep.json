@@ -1,16 +1,19 @@
 {
-  "parts":[
+  "parts": [
     {
-      "name": "markdown",
-      "hooks":{
-        "expressCreateServer": "ep_markdown/express",
-        "eejsBlock_exportColumn": "ep_markdown/index",
-        "eejsBlock_mySettings": "ep_markdown/index",
-        "import": "ep_markdown/index"
+      "name": "fountain",
+      "hooks": {
+        "eejsBlock_editbarMenuRight": "ep_fountain/index",
+        "eejsBlock_styles": "ep_fountain/index",
+        "expressCreateServer": "ep_fountain/index"
       },
       "client_hooks": {
-        "aceEditorCSS": "ep_markdown/static/js/markdown",
-        "postAceInit": "ep_markdown/static/js/markdown"
+        "aceInitialized": "ep_fountain/static/js/index",
+        "aceEditorCSS": "ep_fountain/static/js/index",
+        "aceAttribsToClasses": "ep_fountain/static/js/index",
+        "aceDomLineProcessLineAttributes": "ep_fountain/static/js/index",
+        "aceRegisterBlockElements": "ep_fountain/static/js/index",
+        "acePostWriteDomLineHTML": "ep_fountain/static/js/index"
       }
     }
   ]

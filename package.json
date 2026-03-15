@@ -1,42 +1,27 @@
 {
-  "name": "ep_markdown",
-  "description": "Edit and Export as Markdown in Etherpad",
-  "version": "1.0.1",
+  "name": "ep_fountain",
+  "description": "Collaborative Fountain screenplay editor for Etherpad",
+  "version": "0.1.0",
   "author": {
-    "name": "John McLear",
-    "email": "john@mclear.co.uk",
-    "url": "http://mclear.co.uk"
+    "name": "ep_fountain contributors"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ether/ep_markdown.git"
+    "url": "https://github.com/adn-dan/ep_fountain_2.git"
   },
   "dependencies": {
-    "showdown": "*"
+    "fountain-js": "^1.1.2"
   },
   "contributors": [],
-  "license": "Apache-2.0",
-  "funding": {
-    "type": "individual",
-    "url": "https://etherpad.org/"
-  },
-  "devDependencies": {
-    "eslint": "^8.57.0",
-    "eslint-config-etherpad": "^4.0.4",
-    "typescript": "^5.4.2",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.4"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
-  },
+  "license": "MIT",
+  "keywords": [
+    "etherpad",
+    "fountain",
+    "screenplay",
+    "screenwriting",
+    "collaborative"
+  ],
   "engines": {
     "node": ">=18.0.0"
-  },
-  "peerDependenciesMeta": {
-    "ep_headings2": {
-      "optional": true
-    }
   }
 }

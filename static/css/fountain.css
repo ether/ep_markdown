@@ -1,0 +1,179 @@
+/*
+ * Fountain screenplay styles for Etherpad
+ * Based on standard US Letter screenplay formatting
+ * Font: Courier Prime (loaded via Google Fonts in server hook)
+ */
+
+/* ============================================================
+   Base editor styles
+   ============================================================ */
+
+#innerdocbody {
+  font-family: 'Courier Prime', 'Courier New', Courier, monospace;
+  font-size: 12pt;
+  line-height: 1.5;
+  color: #000;
+  max-width: 8in;
+  margin: 0 auto;
+  padding: 1in 1in 1in 1.5in;
+}
+
+/* ============================================================
+   Scene Heading
+   ============================================================ */
+
+.fountain-scene_heading {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding-top: 1em;
+  padding-bottom: 0.3em;
+  background-color: rgba(220, 220, 220, 0.25);
+  display: block !important;
+}
+
+/* ============================================================
+   Character
+   ============================================================ */
+
+.fountain-character {
+  text-transform: uppercase;
+  margin-left: 37%;
+  padding-top: 1em;
+  display: block !important;
+}
+
+/* ============================================================
+   Dialogue
+   ============================================================ */
+
+.fountain-dialogue {
+  margin-left: 17%;
+  max-width: 60%;
+  display: block !important;
+}
+
+/* ============================================================
+   Parenthetical
+   ============================================================ */
+
+.fountain-parenthetical {
+  margin-left: 27%;
+  max-width: 45%;
+  font-style: italic;
+  display: block !important;
+}
+
+/* ============================================================
+   Transition
+   ============================================================ */
+
+.fountain-transition {
+  text-transform: uppercase;
+  text-align: right;
+  display: block !important;
+}
+
+/* ============================================================
+   Action (default)
+   ============================================================ */
+
+.fountain-action {
+  display: block !important;
+}
+
+/* ============================================================
+   Centered text
+   ============================================================ */
+
+.fountain-centered {
+  text-align: center;
+  display: block !important;
+}
+
+/* ============================================================
+   Sections
+   ============================================================ */
+
+.fountain-section_h1 {
+  font-size: 1.6em;
+  font-weight: bold;
+  padding-top: 0.8em;
+  padding-bottom: 0.3em;
+  display: block !important;
+}
+
+.fountain-section_h2 {
+  font-size: 1.4em;
+  font-weight: bold;
+  padding-top: 0.6em;
+  padding-bottom: 0.2em;
+  display: block !important;
+}
+
+.fountain-section_h3 {
+  font-size: 1.2em;
+  font-weight: bold;
+  padding-top: 0.4em;
+  padding-bottom: 0.2em;
+  display: block !important;
+}
+
+.fountain-section_h4 {
+  font-size: 1.1em;
+  font-weight: bold;
+  display: block !important;
+}
+
+.fountain-section_h5 {
+  font-size: 1.05em;
+  font-weight: bold;
+  display: block !important;
+}
+
+.fountain-section_h6 {
+  font-size: 1em;
+  font-weight: bold;
+  display: block !important;
+}
+
+/* ============================================================
+   Synopsis
+   ============================================================ */
+
+.fountain-synopsis {
+  font-style: italic;
+  color: #888;
+  display: block !important;
+}
+
+/* ============================================================
+   Note
+   ============================================================ */
+
+.fountain-note {
+  font-style: italic;
+  background-color: rgba(255, 255, 200, 0.5);
+  padding: 2px 4px;
+  display: block !important;
+}
+
+/* ============================================================
+   Lyrics
+   ============================================================ */
+
+.fountain-lyrics {
+  font-style: italic;
+  display: block !important;
+}
+
+/* ============================================================
+   Page Break
+   ============================================================ */
+
+.fountain-page_break {
+  display: block !important;
+  border-bottom: 2px dashed #999;
+  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
+  color: #999;
+}
