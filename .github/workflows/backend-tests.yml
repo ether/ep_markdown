@@ -66,6 +66,5 @@ jobs:
           if [ $res -eq 0 ]; then
           echo "No backend tests found"
           else
-          shopt -s globstar
           npx cross-env NODE_ENV=production mocha --import=tsx --timeout 120000 --recursive node_modules/ep_*/static/tests/backend/specs/**
           fi

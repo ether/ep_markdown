@@ -9,23 +9,23 @@ importers:
   .:
     dependencies:
       showdown:
-        specifier: '*'
+        specifier: ^2.1.0
         version: 2.1.0
     devDependencies:
       '@types/mocha':
-        specifier: ^10.0.6
+        specifier: ^10.0.10
         version: 10.0.10
       '@types/node':
-        specifier: ^20.12.4
+        specifier: ^20.19.37
         version: 20.19.37
       eslint:
-        specifier: ^8.57.0
+        specifier: ^8.57.1
         version: 8.57.1
       eslint-config-etherpad:
         specifier: ^4.0.4
         version: 4.0.4(eslint@8.57.1)(typescript@5.9.3)
       typescript:
-        specifier: ^5.4.2
+        specifier: ^5.9.3
         version: 5.9.3
 
 packages:
