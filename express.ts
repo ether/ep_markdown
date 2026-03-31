@@ -3,7 +3,7 @@
 const exportMarkdown = require('./exportMarkdown');
 
 exports.expressCreateServer = (hookName, {app}) => {
-  app.get('/p/:padId/:revNum?/export/markdown', (req, res, next) => {
+  app.get('/p/:padId{/:revNum}/export/markdown', (req, res, next) => {
     (async () => {
       const {padId, revNum} = req.params;
       res.attachment(`${padId}.md`);
