@@ -1,6 +1,8 @@
 {
 	"@metadata": {
-		"authors": []
+		"authors": [
+			"Siebrand"
+		]
 	},
-	"ep_markdown.showMarkdown": "Toon Markdown"
+	"ep_markdown.showMarkdown": "Markdown weergeven"
 }
