@@ -218,9 +218,27 @@ const getMarkdownFromAtext = (pad, atext) => {
         const url = urlData[1];
         const urlLength = url.length;
         processNextChars(startIndex - idx);
+        // Close any currently-open inline format tags (bold, italic, etc.)
+        // before writing the URL. If we don't, processing the URL's chars
+        // re-emits `**` / `*` markers *inside* the Markdown link token,
+        // producing broken output like `[url](**https://example.com**)`
+        // (regression for #156).
+        const reopen = [...openTags];
+        const tags2close = [...openTags];
+        orderdCloseTags(tags2close);
+        for (let i = 0; i < propVals.length; i++) { propVals[i] = false; }
         assem.append(`[${url}](`);
-        processNextChars(urlLength);
+        // Emit the URL's chars as raw text — links in Markdown never
+        // contain inline formatting markers.
+        assem.append(taker.take(urlLength));
+        idx += urlLength;
         assem.append(')');
+        // Restore the formatting tags so any trailing same-line text picks
+        // them back up.
+        for (const i of reopen.slice().reverse()) {
+          emitOpenTag(i);
+          propVals[i] = true;
+        }
       });
     }
 
@@ -229,8 +247,15 @@ const getMarkdownFromAtext = (pad, atext) => {
     // replace &, _
     assem = assem.toString();
     assem = assem.replace(/&/g, '\\&');
-    // this breaks Markdown math mode: $\sum_i^j$ becomes $\sum\_i^j$
-    assem = assem.replace(/_/g, '\\_');
+    // Only escape underscores OUTSIDE code spans / code blocks. On a line
+    // with the `heading: 'code'` attribute (rendered with the 4-space
+    // block-code prefix) underscores should be preserved verbatim,
+    // otherwise `myVar_name` comes out as `myVar\_name` in the exported
+    // Markdown rendering (regression for #156). Math-mode ($...$) still
+    // has no special handling here — that is a separate concern.
+    if (heading !== headingtags[6]) {
+      assem = assem.replace(/_/g, '\\_');
+    }
 
     return assem;
   };
