@@ -6,6 +6,7 @@ import {StringIterator} from 'ep_etherpad-lite/static/js/StringIterator'
 import {StringAssembler} from 'ep_etherpad-lite/static/js/StringAssembler'
 
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
+const readOnlyManager = require('ep_etherpad-lite/node/db/ReadOnlyManager');
 
 const getMarkdownFromAtext = (pad, atext) => {
   const apool = pad.apool();
@@ -344,8 +345,22 @@ const getPadMarkdown = async (pad, revNum) => {
   return getMarkdownFromAtext(pad, atext);
 };
 
+// Readonly pad IDs (`r.*`) must be resolved to their underlying pad ID
+// before loading — otherwise padManager.getPad creates an empty pad under
+// the readonly ID and the export returns nothing. Matches the behavior of
+// Etherpad core's /export/:type handler (see importexport.ts).
+const resolvePadId = async (padId) => {
+  if (readOnlyManager.isReadOnlyId(padId)) {
+    return await readOnlyManager.getPadId(padId);
+  }
+  return padId;
+};
+
 exports.getPadMarkdownDocument =
-    async (padId, revNum) => await getPadMarkdown(await padManager.getPad(padId), revNum);
+    async (padId, revNum) => {
+      const resolvedId = await resolvePadId(padId);
+      return await getPadMarkdown(await padManager.getPad(resolvedId), revNum);
+    };
 
 // copied from ACE
 const _REGEX_WORDCHAR = new RegExp([

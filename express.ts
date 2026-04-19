@@ -1,22 +1,36 @@
 'use strict';
 
 const exportMarkdown = require('./exportMarkdown');
+const settings = require('ep_etherpad-lite/node/utils/Settings');
+const rateLimit = require('express-rate-limit');
 
-// Mirrors the Access-Control-Allow-Origin header that Etherpad core sets on
-// its native /export/* routes (see etherpad-lite's
-// src/node/hooks/express/importexport.ts). Without this, browsers block
-// repeated fetches of /p/:padId/export/markdown with a CORS error — which
-// integrators hit when rate-limited exports get retried or when the export
-// is initiated from a different origin (issue #139).
-const addCorsHeader = (res: any) => {
-  res.header('Access-Control-Allow-Origin', '*');
-};
+// Mirrors the rate limiting, CORS header, and readonly-pad handling that
+// Etherpad core applies to its native /p/:pad/export/:type routes
+// (src/node/hooks/express/importexport.ts). Without these, integrators hit
+// browser CORS errors on repeated fetches (issue #139) and the readonly
+// `r.*` pad IDs fail because markdown's export path did not resolve them
+// to their underlying pad IDs.
 
 exports.expressCreateServer = (hookName, {app}) => {
+  const limiter = rateLimit({
+    ...settings.importExportRateLimiting,
+    handler: (request: any) => {
+      if (request.rateLimit.current === request.rateLimit.limit + 1) {
+        console.warn('Import/Export rate limiter triggered on ' +
+            `"${request.originalUrl}" for IP address ${request.ip}`);
+      }
+    },
+  });
+
+  // Apply the core rate limiter to both with-revision and without-revision
+  // markdown export endpoints, matching the pattern used by Etherpad core.
+  app.use('/p/:padId/export/markdown', limiter);
+  app.use('/p/:padId/:revNum/export/markdown', limiter);
+
   app.get('/p/:padId/export/markdown', async (req: any, res: any, next: any) => {
     try {
       const {padId} = req.params;
-      addCorsHeader(res);
+      res.header('Access-Control-Allow-Origin', '*');
       res.attachment(`${padId}.md`);
       res.contentType('plain/text');
       res.send(await exportMarkdown.getPadMarkdownDocument(padId));
@@ -28,7 +42,7 @@ exports.expressCreateServer = (hookName, {app}) => {
   app.get('/p/:padId/:revNum/export/markdown', async (req: any, res: any, next: any) => {
     try {
       const {padId, revNum} = req.params;
-      addCorsHeader(res);
+      res.header('Access-Control-Allow-Origin', '*');
       res.attachment(`${padId}.md`);
       res.contentType('plain/text');
       res.send(await exportMarkdown.getPadMarkdownDocument(padId, revNum));
