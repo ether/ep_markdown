@@ -6,7 +6,10 @@ import {StringIterator} from 'ep_etherpad-lite/static/js/StringIterator'
 import {StringAssembler} from 'ep_etherpad-lite/static/js/StringAssembler'
 
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
-const readOnlyManager = require('ep_etherpad-lite/node/db/ReadOnlyManager');
+// ReadOnlyManager uses `export default {...}` (ESM-style), so when loaded
+// via CommonJS `require` the API lives under `.default`. Unwrap explicitly
+// so `readOnlyManager.isReadOnlyId` resolves.
+const readOnlyManager = require('ep_etherpad-lite/node/db/ReadOnlyManager').default;
 
 const getMarkdownFromAtext = (pad, atext) => {
   const apool = pad.apool();
