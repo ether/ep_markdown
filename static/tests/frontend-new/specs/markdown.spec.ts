@@ -15,8 +15,15 @@ test.describe('ep_markdown', () => {
         await writeToPad(page, 'bold');
         await selectAllText(page);
 
-        // Apply bold via the toolbar button.
-        await page.locator('.buttonicon-bold').click();
+        // Apply bold via the toolbar button. force:true because under
+        // Firefox + WITH_PLUGINS load #toolbar-overlay can intercept
+        // pointer events; chromium resolves the click via fallback
+        // hit-testing but firefox is stricter.
+        await page.locator('.buttonicon-bold').click({force: true});
+        // Wait for the bold to actually apply before flipping the
+        // markdown setting — otherwise the markdown class could land
+        // before there's anything bold to render.
+        await expect(padBody.locator('div').first().locator('b')).toHaveCount(1);
 
         // Toggle "Show Markdown" in pad settings.
         // Settings popup must be open for #options-markdown to be clickable.
