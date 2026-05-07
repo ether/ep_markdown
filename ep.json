@@ -4,13 +4,17 @@
       "name": "markdown",
       "hooks":{
         "expressCreateServer": "ep_markdown/express",
+        "loadSettings": "ep_markdown/index",
+        "clientVars": "ep_markdown/index",
         "eejsBlock_exportColumn": "ep_markdown/index",
         "eejsBlock_mySettings": "ep_markdown/index",
+        "eejsBlock_padSettings": "ep_markdown/index",
         "import": "ep_markdown/index"
       },
       "client_hooks": {
         "aceEditorCSS": "ep_markdown/static/js/markdown",
-        "postAceInit": "ep_markdown/static/js/markdown"
+        "postAceInit": "ep_markdown/static/js/markdown",
+        "handleClientMessage_CLIENT_MESSAGE": "ep_markdown/static/js/markdown:handleClientMessage_CLIENT_MESSAGE"
       }
     }
   ]

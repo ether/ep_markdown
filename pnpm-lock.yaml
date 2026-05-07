@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      ep_plugin_helpers:
+        specifier: ^0.3.0
+        version: 0.3.1
       showdown:
         specifier: ^2.1.0
         version: 2.1.0
@@ -419,6 +422,10 @@ packages:
   enhanced-resolve@5.20.1:
     resolution: {integrity: sha512-Qohcme7V1inbAfvjItgw0EaxVX5q2rdVEZHRBrEQdRZTssLDGsL8Lwrznl8oQ/6kuTJONLaDcGjkNP247XEhcA==}
     engines: {node: '>=10.13.0'}
+
+  ep_plugin_helpers@0.3.1:
+    resolution: {integrity: sha512-PHvLsJGJHQNLvP4R4k+D54f6JasD/uv9T4S0UaLHePjQBy0INpiS8iFXLeAY60EbgeznhMJLgE2DVy+32bZTLQ==}
+    engines: {node: '>=18.0.0'}
 
   es-abstract@1.24.2:
     resolution: {integrity: sha512-2FpH9Q5i2RRwyEP1AylXe6nYLR5OhaJTZwmlcP0dL/+JCbgg7yyEo/sEK6HeGZRf3dFpWwThaRHVApXSkW3xeg==}
@@ -1707,6 +1714,8 @@ snapshots:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.2
+
+  ep_plugin_helpers@0.3.1: {}
 
   es-abstract@1.24.2:
     dependencies:
