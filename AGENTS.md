@@ -38,7 +38,7 @@ ep_markdown/
 
 ## Helpers used
 
-* `pad-toggle` from `ep_plugin_helpers`
+* `padToggle` (client sub-path) from `ep_plugin_helpers`
 
 
 ## Helpers NOT used
