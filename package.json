@@ -1,7 +1,7 @@
 {
   "name": "ep_markdown",
   "description": "Edit and Export as Markdown in Etherpad",
-  "version": "11.0.15",
+  "version": "12.0.7",
   "author": {
     "name": "John McLear",
     "email": "john@mclear.co.uk",
@@ -12,6 +12,7 @@
     "url": "https://github.com/ether/ep_markdown.git"
   },
   "dependencies": {
+    "ep_plugin_helpers": "^0.5.2",
     "showdown": "^2.1.0"
   },
   "contributors": [],
@@ -22,7 +23,7 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.8.0",
     "eslint": "^8.57.1",
     "eslint-config-etherpad": "^4.0.5",
     "typescript": "^6.0.3"
