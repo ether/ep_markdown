@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       ep_plugin_helpers:
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.6.0
+        version: 0.6.2
       express-rate-limit:
         specifier: ^8.0.0 || ^7.0.0
         version: 8.3.2(express@5.2.1)
@@ -466,8 +466,8 @@ packages:
     resolution: {integrity: sha512-Qohcme7V1inbAfvjItgw0EaxVX5q2rdVEZHRBrEQdRZTssLDGsL8Lwrznl8oQ/6kuTJONLaDcGjkNP247XEhcA==}
     engines: {node: '>=10.13.0'}
 
-  ep_plugin_helpers@0.5.2:
-    resolution: {integrity: sha512-6M0gYqRTaF2SnTvV1OiqOZQ4B37ZHL0Zjoz3/eOIAXeCEBA4jId62uz9uboLs87Qcfae7eirDYWpdir5u5zkEQ==}
+  ep_plugin_helpers@0.6.2:
+    resolution: {integrity: sha512-CGWdFk6FG0Q0y1opoly+J4tkNpSOI2Tho4oOmaWCpMwgJxvdO4W/i5LIZQXLDSGoRCuAUKokd3H/fvEqTjztgw==}
     engines: {node: '>=18.0.0'}
 
   es-abstract@1.24.2:
@@ -1926,7 +1926,7 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.3.2
 
-  ep_plugin_helpers@0.5.2: {}
+  ep_plugin_helpers@0.6.2: {}
 
   es-abstract@1.24.2:
     dependencies:
