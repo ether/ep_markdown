@@ -12,7 +12,7 @@
     "url": "https://github.com/ether/ep_markdown.git"
   },
   "dependencies": {
-    "ep_plugin_helpers": "^0.6.0",
+    "ep_plugin_helpers": "^0.6.7",
     "showdown": "^2.1.0"
   },
   "contributors": [],
