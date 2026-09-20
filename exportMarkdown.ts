@@ -3,13 +3,179 @@
 
 import {splitAttributionLines, opIterator,subattribution,eachAttribNumber, opAttributeValue} from 'ep_etherpad-lite/static/js/Changeset'
 import {StringIterator} from 'ep_etherpad-lite/static/js/StringIterator'
-import {StringAssembler} from 'ep_etherpad-lite/static/js/StringAssembler'
 
 const padManager = require('ep_etherpad-lite/node/db/PadManager');
 // ReadOnlyManager uses `export default {...}` (ESM-style), so when loaded
 // via CommonJS `require` the API lives under `.default`. Unwrap explicitly
 // so `readOnlyManager.isReadOnlyId` resolves.
 const readOnlyManager = require('ep_etherpad-lite/node/db/ReadOnlyManager').default;
+
+// A line is assembled as a list of tokens rather than a flat string so that the
+// Markdown we emit ourselves can be told apart from the pad's own text:
+//   {t: 'text'}          text taken from the pad (escaped on output)
+//   {t: 'open'|'close'}  an inline formatting marker we emitted (`**`, `*`, ...)
+//   {t: 'raw'}           Markdown we emitted that must not be escaped
+//                        (the heading prefix, a `[url](url)` link)
+// Keeping them apart is what allows the whitespace / escaping passes below to
+// fix up the emitted Markdown without mangling the author's own characters.
+
+// CommonMark only lets `**`/`*`/`~~` close a span when the marker is *not*
+// preceded by whitespace (and only open one when it is not followed by
+// whitespace). `**bold **[link](...)` therefore does not render as bold at
+// all — the run stays literal. Move any whitespace that ended up inside a
+// span to the outside of it. (#156: "a link in a bold line is corrupted")
+const _normalizeTagWhitespace = (tokens) => {
+  for (let pass = 0; pass < tokens.length + 1; pass++) {
+    let changed = false;
+    for (let i = 0; i < tokens.length; i++) {
+      const tok = tokens[i];
+      if (tok.t === 'open') {
+        const next = tokens[i + 1];
+        if (next && next.t === 'text') {
+          const ws = /^[ \t]+/.exec(next.v);
+          if (ws) {
+            next.v = next.v.slice(ws[0].length);
+            tokens.splice(i, 0, {t: 'text', v: ws[0]});
+            changed = true;
+          }
+        }
+      } else if (tok.t === 'close') {
+        const prev = tokens[i - 1];
+        if (prev && prev.t === 'text') {
+          const ws = /[ \t]+$/.exec(prev.v);
+          if (ws) {
+            prev.v = prev.v.slice(0, -ws[0].length);
+            tokens.splice(i + 1, 0, {t: 'text', v: ws[0]});
+            changed = true;
+          }
+        }
+      }
+    }
+    // An emphasis run that is now empty (`****`) would be emitted verbatim.
+    for (let i = 0; i < tokens.length - 1; i++) {
+      if (tokens[i].t === 'open' && tokens[i + 1].t === 'close' &&
+          tokens[i].i === tokens[i + 1].i) {
+        tokens.splice(i, 2);
+        changed = true;
+        i--;
+      }
+    }
+    if (!changed) break;
+  }
+  return tokens;
+};
+
+// The pad's own text, as far as the first token that is not pad text. Used to
+// decide what the *start of the line* looks like to a Markdown parser.
+const _leadingPadText = (tokens, maxChars) => {
+  let out = '';
+  for (const tok of tokens) {
+    if (tok.t === 'open' || tok.t === 'close') continue;
+    if (tok.t !== 'text') break; // a link etc. — stop, we only care about the start
+    out += tok.v;
+    if (out.length >= maxChars) break;
+  }
+  return out.slice(0, maxChars);
+};
+
+// Drop `count` characters of pad text from the front of the line.
+const _dropLeadingPadChars = (tokens, count) => {
+  for (const tok of tokens) {
+    if (count <= 0) break;
+    if (tok.t !== 'text') {
+      if (tok.t === 'open' || tok.t === 'close') continue;
+      break;
+    }
+    const take = Math.min(count, tok.v.length);
+    tok.v = tok.v.slice(take);
+    count -= take;
+  }
+};
+
+// Insert `str` `offset` characters into the pad text of the line.
+const _insertAtPadOffset = (tokens, offset, str) => {
+  for (const tok of tokens) {
+    if (tok.t === 'open' || tok.t === 'close') continue;
+    if (tok.t !== 'text') break;
+    if (offset <= tok.v.length) {
+      tok.v = tok.v.slice(0, offset) + str + tok.v.slice(offset);
+      return;
+    }
+    offset -= tok.v.length;
+  }
+};
+
+// Block-level Markdown constructs that a *plain* pad line would be turned into
+// by a Markdown parser even though the pad holds no such structure: a bullet or
+// numbered list, an ATX heading, a block quote, a fence or a thematic break.
+// Each entry returns the index (within the line's text) of the character that
+// has to be backslash-escaped to keep the line a plain paragraph.
+const _BLOCK_STARTERS = [
+  /^([ \t]*)()[-+*](?:[ \t]|$)/, // - bullet
+  /^([ \t]*)(\d{1,9})[.)](?:[ \t]|$)/, // 1. ordered list
+  /^([ \t]*)()#{1,6}(?:[ \t]|$)/, // # heading
+  /^([ \t]*)()>/, // > block quote
+  /^([ \t]*)()(?:`{3,}|~{3,})/, // ``` fence
+  /^([ \t]*)()([-*_])[ \t]*(?:\3[ \t]*){2,}$/, // --- thematic break
+];
+
+// Markdown treats a line indented by four or more spaces as a code block, so a
+// pad line that merely *looks* indented comes out as code (#156: "a line that
+// starts with spaces then dash then space produces a code block"). Markdown
+// cannot represent leading indentation in a paragraph at all, so clamp it to
+// three spaces — enough to keep a visual hint, never enough to start a code
+// block — and escape any block marker that follows so the line stays a plain
+// paragraph, exactly as the pad renders it.
+const _escapeBlockStart = (tokens) => {
+  const MAX_INDENT = 3;
+  let prefix = _leadingPadText(tokens, 64);
+  const indent = /^[ \t]*/.exec(prefix)[0];
+  const width = [...indent].reduce((n, c) => (c === '\t' ? n + 4 : n + 1), 0);
+  if (width > MAX_INDENT) {
+    _dropLeadingPadChars(tokens, indent.length);
+    _insertAtPadOffset(tokens, 0, ' '.repeat(MAX_INDENT));
+    prefix = _leadingPadText(tokens, 64);
+  }
+  for (const re of _BLOCK_STARTERS) {
+    const m = re.exec(prefix);
+    if (m) {
+      _insertAtPadOffset(tokens, m[1].length + m[2].length, '\\');
+      return tokens;
+    }
+  }
+  return tokens;
+};
+
+// `&` and `_` are escaped so that they survive as literal characters, but
+// inside a code span a backslash is *not* an escape — `` `a\_b` `` renders as
+// `a\_b`. Track backtick runs and leave code spans alone (#156: "underscores
+// in a code block are escaped and appear as \_").
+const _joinTokens = (tokens, escapeText) => {
+  let out = '';
+  let fence = 0; // length of the backtick run that opened the current code span
+  for (const tok of tokens) {
+    if (tok.t !== 'text' || !escapeText) {
+      out += tok.v;
+      continue;
+    }
+    for (let i = 0; i < tok.v.length; i++) {
+      const c = tok.v[i];
+      if (c === '`') {
+        let run = 1;
+        while (tok.v[i + run] === '`') run++;
+        if (fence === 0) fence = run;
+        else if (fence === run) fence = 0;
+        out += tok.v.substr(i, run);
+        i += run - 1;
+      } else if (fence === 0 && (c === '&' || c === '_')) {
+        out += `\\${c}`;
+      } else {
+        out += c;
+      }
+    }
+  }
+  return out;
+};
 
 const getMarkdownFromAtext = (pad, atext) => {
   const apool = pad.apool();
@@ -66,17 +232,23 @@ const getMarkdownFromAtext = (pad, atext) => {
     // becomes
     // <b>Just bold <i>Bold and italics</i></b> <i>Just italics</i>
     const taker = new StringIterator(text);
-    let assem = new StringAssembler();
+    const tokens = [];
+    const appendText = (v) => {
+      if (v) tokens.push({t: 'text', v});
+    };
+    const appendRaw = (v) => {
+      if (v) tokens.push({t: 'raw', v});
+    };
 
     const openTags = [];
     const emitOpenTag = (i) => {
       openTags.unshift(i);
-      assem.append(tags[i]);
+      tokens.push({t: 'open', i, v: tags[i]});
     };
 
     const emitCloseTag = (i) => {
       openTags.shift();
-      assem.append(tags[i]);
+      tokens.push({t: 'close', i, v: tags[i]});
     };
 
     const orderdCloseTags = (tags2close) => {
@@ -108,7 +280,7 @@ const getMarkdownFromAtext = (pad, atext) => {
     }
 
     if (heading) {
-      assem.append(heading);
+      appendRaw(heading);
     }
 
     const urls = _findURLs(text);
@@ -202,7 +374,7 @@ const getMarkdownFromAtext = (pad, atext) => {
           deletedAsterisk = true;
         }
 
-        assem.append(s);
+        appendText(s);
       } // end iteration over spans in line
 
       const tags2close = [];
@@ -231,12 +403,11 @@ const getMarkdownFromAtext = (pad, atext) => {
         const tags2close = [...openTags];
         orderdCloseTags(tags2close);
         for (let i = 0; i < propVals.length; i++) { propVals[i] = false; }
-        assem.append(`[${url}](`);
-        // Emit the URL's chars as raw text — links in Markdown never
-        // contain inline formatting markers.
-        assem.append(taker.take(urlLength));
+        // Emit the whole link as one raw token — links in Markdown never
+        // contain inline formatting markers, and a link destination must not
+        // be backslash-escaped either.
+        appendRaw(`[${url}](${taker.take(urlLength)})`);
         idx += urlLength;
-        assem.append(')');
         // Restore the formatting tags so any trailing same-line text picks
         // them back up.
         for (const i of reopen.slice().reverse()) {
@@ -248,20 +419,16 @@ const getMarkdownFromAtext = (pad, atext) => {
 
     processNextChars(text.length - idx);
 
-    // replace &, _
-    assem = assem.toString();
-    assem = assem.replace(/&/g, '\\&');
-    // Only escape underscores OUTSIDE code spans / code blocks. On a line
-    // with the `heading: 'code'` attribute (rendered with the 4-space
-    // block-code prefix) underscores should be preserved verbatim,
-    // otherwise `myVar_name` comes out as `myVar\_name` in the exported
-    // Markdown rendering (regression for #156). Math-mode ($...$) still
-    // has no special handling here — that is a separate concern.
-    if (heading !== headingtags[6]) {
-      assem = assem.replace(/_/g, '\\_');
-    }
+    _normalizeTagWhitespace(tokens);
+    // A line that already carries a block-level attribute (heading, code) is
+    // emitted with its own Markdown prefix, so its text can no longer be read
+    // as the start of some other block construct.
+    if (!heading) _escapeBlockStart(tokens);
 
-    return assem;
+    // Nothing on a code line is escaped: it is emitted verbatim inside the
+    // four-space code block. Math-mode ($...$) still has no special handling
+    // here — that is a separate concern.
+    return _joinTokens(tokens, heading !== headingtags[6]);
   };
   // end getLineMarkdown
   const pieces = [];
@@ -274,9 +441,16 @@ const getMarkdownFromAtext = (pad, atext) => {
   // want to deal gracefully with blank lines.
   // => keeps track of the parents level of indentation
   const lists = []; // e.g. [[1,'bullet'], [3,'bullet'], ...]
+  let prevWasListItem = false;
   for (let i = 0; i < textLines.length; i++) {
     const line = _analyzeLine(textLines[i], attribLines[i], apool);
     const lineContent = getLineMarkdown(line.text, line.aline);
+
+    // A plain line straight after a list item is a "lazy continuation" in
+    // Markdown and gets swallowed into that item. Close the list with a blank
+    // line first so the paragraph stays a paragraph.
+    if (prevWasListItem && !line.listLevel) pieces.push('\n');
+    prevWasListItem = !!line.listLevel;
 
     // If we are inside a list
     if (line.listLevel) {
@@ -358,6 +532,9 @@ const resolvePadId = async (padId) => {
   }
   return padId;
 };
+
+// Exported for the unit tests (static/tests/backend/specs/exportMarkdown.ts).
+exports.getMarkdownFromAtext = getMarkdownFromAtext;
 
 exports.getPadMarkdownDocument =
     async (padId, revNum) => {
