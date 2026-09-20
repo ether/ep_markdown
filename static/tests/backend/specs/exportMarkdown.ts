@@ -122,6 +122,18 @@ describe('ep_markdown export (issue #156)', function () {
       assert.equal(toHtml(md).trim(), '<p>- not a list</p>');
     });
 
+    it('does not let a following "===" line make a setext heading', function () {
+      // Every pad line is emitted as its own paragraph, separated by a blank
+      // line, so an underline can never attach to the line above it.
+      const md = toMarkdown([['Title\n', []], ['===\n', []]]);
+      assert.equal(toHtml(md).replace(/\n/g, ''), '<p>Title</p><p>===</p>');
+    });
+
+    it('does not let a "---" line become a thematic break', function () {
+      const md = toMarkdown([['Title\n', []], ['---\n', []]]);
+      assert.equal(toHtml(md).replace(/\n/g, ''), '<p>Title</p><p>---</p>');
+    });
+
     it('keeps a plain line that starts with "1. " a paragraph', function () {
       const md = toMarkdown([['1. not a list\n', []]]);
       assert.equal(toHtml(md).trim(), '<p>1. not a list</p>');
