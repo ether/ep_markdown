@@ -43,6 +43,14 @@ describe('ep_markdown export (issue #156)', function () {
       assert.equal(toHtml(md).trim(), '<p>snake_case</p>');
     });
 
+    it('still escapes after an unmatched backtick', function () {
+      // A lone backtick is an ordinary character, not the start of a code
+      // span, so the rest of the line must keep being escaped.
+      const md = toMarkdown([['a ` b _word_ c\n', []]]);
+      assert.ok(md.includes('\\_word\\_'), md);
+      assert.equal(toHtml(md).trim(), '<p>a ` b _word_ c</p>');
+    });
+
     it('does not escape a code line', function () {
       const md = toMarkdown([['*', [['heading', 'code']]], ['a_b & c\n', []]]);
       assert.ok(md.includes('    a_b & c'), md);
@@ -62,12 +70,26 @@ describe('ep_markdown export (issue #156)', function () {
       // span and the whole run would stay literal.
       assert.ok(!/\[[^\]]*\*/.test(md), md);
       assert.ok(!/\([^)]*\*/.test(md), md);
-      assert.ok(md.includes('**bold** ['), md);
+      assert.ok(md.includes('**bold ['), md);
+      // The pad has the whole line bold, so the link is bold too.
       assert.equal(
           toHtml(md).trim(),
-          '<p><strong>bold</strong> <a href="https://example.com/a_b">' +
-          'https://example.com/a_b</a> <strong>tail</strong></p>');
+          '<p><strong>bold <a href="https://example.com/a_b">' +
+          'https://example.com/a_b</a> tail</strong></p>');
     });
+
+    it('closes the formatting run when a bold line ends with a link',
+        function () {
+          const md = toMarkdown([
+            ['see ', [['bold', 'true']]],
+            ['https://example.com\n', [['bold', 'true']]],
+          ]);
+          assert.equal((md.match(/\*\*/g) || []).length, 2, md);
+          assert.equal(
+              toHtml(md).trim(),
+              '<p><strong>see <a href="https://example.com">' +
+              'https://example.com</a></strong></p>');
+        });
 
     it('does not backslash-escape the link destination', function () {
       const md = toMarkdown([['https://example.com/a_b&c\n', []]]);
@@ -87,6 +109,12 @@ describe('ep_markdown export (issue #156)', function () {
       }
       assert.ok(toHtml(md).includes('<p>- un texte normal</p>'), toHtml(md));
       assert.ok(!toHtml(md).includes('<code>'), toHtml(md));
+    });
+
+    it('clamps indentation however deep it is', function () {
+      const md = toMarkdown([[`${' '.repeat(80)}deeply indented\n`, []]]);
+      assert.ok(/^ {0,3}deeply indented$/m.test(md), JSON.stringify(md));
+      assert.equal(toHtml(md).trim(), '<p>deeply indented</p>');
     });
 
     it('keeps a plain line that starts with "- " a paragraph', function () {

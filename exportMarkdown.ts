@@ -67,15 +67,14 @@ const _normalizeTagWhitespace = (tokens) => {
 
 // The pad's own text, as far as the first token that is not pad text. Used to
 // decide what the *start of the line* looks like to a Markdown parser.
-const _leadingPadText = (tokens, maxChars) => {
+const _leadingPadText = (tokens) => {
   let out = '';
   for (const tok of tokens) {
     if (tok.t === 'open' || tok.t === 'close') continue;
     if (tok.t !== 'text') break; // a link etc. — stop, we only care about the start
     out += tok.v;
-    if (out.length >= maxChars) break;
   }
-  return out.slice(0, maxChars);
+  return out;
 };
 
 // Drop `count` characters of pad text from the front of the line.
@@ -128,13 +127,13 @@ const _BLOCK_STARTERS = [
 // paragraph, exactly as the pad renders it.
 const _escapeBlockStart = (tokens) => {
   const MAX_INDENT = 3;
-  let prefix = _leadingPadText(tokens, 64);
+  let prefix = _leadingPadText(tokens);
   const indent = /^[ \t]*/.exec(prefix)[0];
   const width = [...indent].reduce((n, c) => (c === '\t' ? n + 4 : n + 1), 0);
   if (width > MAX_INDENT) {
     _dropLeadingPadChars(tokens, indent.length);
     _insertAtPadOffset(tokens, 0, ' '.repeat(MAX_INDENT));
-    prefix = _leadingPadText(tokens, 64);
+    prefix = _leadingPadText(tokens);
   }
   for (const re of _BLOCK_STARTERS) {
     const m = re.exec(prefix);
@@ -146,32 +145,69 @@ const _escapeBlockStart = (tokens) => {
   return tokens;
 };
 
+// Marks the characters of `text` that sit inside a code span. A run of N
+// backticks only opens a span when a run of exactly N backticks follows it
+// later on the line, the same rule a Markdown parser applies — an unmatched
+// backtick is an ordinary character and must not switch escaping off for the
+// rest of the line.
+const _codeSpanMask = (text) => {
+  const mask = new Array(text.length).fill(false);
+  const runLength = (at) => {
+    let n = 1;
+    while (text[at + n] === '`') n++;
+    return n;
+  };
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] !== '`') {
+      i++;
+      continue;
+    }
+    const run = runLength(i);
+    let close = -1;
+    for (let j = i + run; j < text.length;) {
+      if (text[j] !== '`') {
+        j++;
+        continue;
+      }
+      const other = runLength(j);
+      if (other === run) {
+        close = j;
+        break;
+      }
+      j += other;
+    }
+    if (close < 0) { // unmatched — plain text
+      i += run;
+      continue;
+    }
+    for (let k = i; k < close + run; k++) mask[k] = true;
+    i = close + run;
+  }
+  return mask;
+};
+
 // `&` and `_` are escaped so that they survive as literal characters, but
 // inside a code span a backslash is *not* an escape — `` `a\_b` `` renders as
-// `a\_b`. Track backtick runs and leave code spans alone (#156: "underscores
-// in a code block are escaped and appear as \_").
+// `a\_b`. Leave code spans (and raw Markdown we emitted ourselves) alone
+// (#156: "underscores in a code block are escaped and appear as \_").
 const _joinTokens = (tokens, escapeText) => {
+  const padText = tokens.filter((tok) => tok.t === 'text').map((tok) => tok.v).join('');
+  const inCode = escapeText ? _codeSpanMask(padText) : null;
   let out = '';
-  let fence = 0; // length of the backtick run that opened the current code span
+  let pos = 0; // offset into padText
   for (const tok of tokens) {
-    if (tok.t !== 'text' || !escapeText) {
+    if (tok.t !== 'text') {
       out += tok.v;
       continue;
     }
-    for (let i = 0; i < tok.v.length; i++) {
+    if (!escapeText) {
+      out += tok.v;
+      continue;
+    }
+    for (let i = 0; i < tok.v.length; i++, pos++) {
       const c = tok.v[i];
-      if (c === '`') {
-        let run = 1;
-        while (tok.v[i + run] === '`') run++;
-        if (fence === 0) fence = run;
-        else if (fence === run) fence = 0;
-        out += tok.v.substr(i, run);
-        i += run - 1;
-      } else if (fence === 0 && (c === '&' || c === '_')) {
-        out += `\\${c}`;
-      } else {
-        out += c;
-      }
+      out += (!inCode[pos] && (c === '&' || c === '_')) ? `\\${c}` : c;
     }
   }
   return out;
@@ -377,6 +413,14 @@ const getMarkdownFromAtext = (pad, atext) => {
         appendText(s);
       } // end iteration over spans in line
 
+    }; // end processNextChars
+
+    // Close whatever is still open. Called once, at the end of the line: a
+    // formatting run must not be closed and reopened around a link, or the
+    // link drops out of the bold/italic run it sits in — and reopening a tag
+    // that nothing closes afterwards leaves a stray `**` at the end of a line
+    // that ends with a URL.
+    const closeOpenTags = () => {
       const tags2close = [];
       for (let i = propVals.length - 1; i >= 0; i--) {
         if (propVals[i]) {
@@ -384,9 +428,8 @@ const getMarkdownFromAtext = (pad, atext) => {
           propVals[i] = false;
         }
       }
-
       orderdCloseTags(tags2close);
-    }; // end processNextChars
+    };
 
     if (urls) {
       urls.forEach((urlData) => {
@@ -394,30 +437,18 @@ const getMarkdownFromAtext = (pad, atext) => {
         const url = urlData[1];
         const urlLength = url.length;
         processNextChars(startIndex - idx);
-        // Close any currently-open inline format tags (bold, italic, etc.)
-        // before writing the URL. If we don't, processing the URL's chars
-        // re-emits `**` / `*` markers *inside* the Markdown link token,
-        // producing broken output like `[url](**https://example.com**)`
-        // (regression for #156).
-        const reopen = [...openTags];
-        const tags2close = [...openTags];
-        orderdCloseTags(tags2close);
-        for (let i = 0; i < propVals.length; i++) { propVals[i] = false; }
-        // Emit the whole link as one raw token — links in Markdown never
-        // contain inline formatting markers, and a link destination must not
-        // be backslash-escaped either.
+        // Emit the whole link as one raw token instead of letting its
+        // characters run through processNextChars — that would re-emit
+        // `**` / `*` markers *inside* the link, producing broken output like
+        // `[url](**https://example.com**)` (#156). Any open formatting run
+        // simply continues across the link: `**bold [url](url) tail**`.
         appendRaw(`[${url}](${taker.take(urlLength)})`);
         idx += urlLength;
-        // Restore the formatting tags so any trailing same-line text picks
-        // them back up.
-        for (const i of reopen.slice().reverse()) {
-          emitOpenTag(i);
-          propVals[i] = true;
-        }
       });
     }
 
     processNextChars(text.length - idx);
+    closeOpenTags();
 
     _normalizeTagWhitespace(tokens);
     // A line that already carries a block-level attribute (heading, code) is
