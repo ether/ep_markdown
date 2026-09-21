@@ -2,15 +2,15 @@
 
 // Unit tests for the Markdown exporter (issue #156). These drive
 // `getMarkdownFromAtext` directly against a hand-built atext, so they need no
-// running server, and they render the result with showdown (the same library
-// the plugin uses for Markdown *import*) to assert what the exported Markdown
-// actually looks like once rendered.
+// running server, and they render the result with the plugin's own Markdown
+// renderer (the one the `.md` *import* hook uses) to assert what the exported
+// Markdown actually looks like once rendered.
 
 import * as Changeset from 'ep_etherpad-lite/static/js/Changeset';
 import AttributePool from 'ep_etherpad-lite/static/js/AttributePool';
 
 const assert = require('assert').strict;
-const showdown = require('showdown');
+const {markdownToHtml} = require('ep_markdown/importMarkdown');
 const {getMarkdownFromAtext} = require('ep_markdown/exportMarkdown');
 
 // Builds an atext out of [text, attributes] pairs, e.g.
@@ -26,7 +26,11 @@ const toMarkdown = (segments: any[][]) => {
   return getMarkdownFromAtext({apool: () => pool, atext}, atext);
 };
 
-const toHtml = (markdown: string) => new showdown.Converter().makeHtml(markdown);
+// `markdownToHtml` returns a complete HTML document (that is the shape core's
+// importer wants); the assertions below are about the body, so unwrap it.
+const toHtml = (markdown: string) => markdownToHtml(markdown)
+    .replace(/^[\s\S]*?<body>\n/, '')
+    .replace(/<\/body>[\s\S]*$/, '');
 
 describe('ep_markdown export (issue #156)', function () {
   describe('escaping', function () {
