@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "ep_plugin_helpers": "^0.6.7",
-    "showdown": "^2.1.0"
+    "markdown-it": "^15.0.2"
   },
   "contributors": [],
   "license": "Apache-2.0",

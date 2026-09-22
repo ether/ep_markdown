@@ -8,6 +8,8 @@ Edit and Export as Markdown in Etherpad.
 * EJS templates rendered server-side via `eejsBlock_*` hooks
 * html10n for i18n (`locales/<lang>.json`, `data-l10n-id` in templates)
 * `ep_plugin_helpers` for shared boilerplate
+* `markdown-it` for the `.md` import path (`importMarkdown.ts`). The export
+  path (`exportMarkdown.ts`) is hand-written and uses no parser.
 
 ## Project structure
 
@@ -18,6 +20,7 @@ ep_markdown/
 ├── ep.json
 ├── exportMarkdown.ts
 ├── express.ts
+├── importMarkdown.ts
 ├── index.ts
 ├── locales/
 │   ├── ar.json

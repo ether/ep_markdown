@@ -32,10 +32,9 @@ exports.import = async (hookName, {destFile, fileEnding, srcFile}) => {
   if (fileEnding !== '.md') return;
 
   const markdown = await fsp.readFile(srcFile, 'utf8');
-  const showdown = require('showdown');
-  const converter = new showdown.Converter({completeHTMLDocument: true});
+  const {markdownToHtml} = require('./importMarkdown');
 
-  const html = converter.makeHtml(markdown);
+  const html = markdownToHtml(markdown);
 
   await fsp.writeFile(destFile, html, 'utf8');
   return destFile;
