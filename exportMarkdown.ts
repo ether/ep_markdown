@@ -125,7 +125,7 @@ const _BLOCK_STARTERS = [
 // three spaces — enough to keep a visual hint, never enough to start a code
 // block — and escape any block marker that follows so the line stays a plain
 // paragraph, exactly as the pad renders it.
-const _escapeBlockStart = (tokens) => {
+const _blockEscapeOffset = (tokens) => {
   const MAX_INDENT = 3;
   let prefix = _leadingPadText(tokens);
   const indent = /^[ \t]*/.exec(prefix)[0];
@@ -138,11 +138,12 @@ const _escapeBlockStart = (tokens) => {
   for (const re of _BLOCK_STARTERS) {
     const m = re.exec(prefix);
     if (m) {
-      _insertAtPadOffset(tokens, m[1].length + m[2].length, '\\');
-      return tokens;
+      // Escape this character when joining, so the inline pass does not
+      // mistake our backslash for literal pad text and escape it again.
+      return m[1].length + m[2].length;
     }
   }
-  return tokens;
+  return -1;
 };
 
 // Marks the characters of `text` that sit inside a code span. A run of N
@@ -187,11 +188,13 @@ const _codeSpanMask = (text) => {
   return mask;
 };
 
-// `&` and `_` are escaped so that they survive as literal characters, but
+const _escapeInlineText = (text) => text.replace(/[\\&_*[\]<>~`]/g, '\\$&');
+
+// Inline Markdown characters must survive as literal pad text, but
 // inside a code span a backslash is *not* an escape — `` `a\_b` `` renders as
 // `a\_b`. Leave code spans (and raw Markdown we emitted ourselves) alone
 // (#156: "underscores in a code block are escaped and appear as \_").
-const _joinTokens = (tokens, escapeText) => {
+const _joinTokens = (tokens, escapeText, blockEscapeOffset) => {
   const padText = tokens.filter((tok) => tok.t === 'text').map((tok) => tok.v).join('');
   const inCode = escapeText ? _codeSpanMask(padText) : null;
   let out = '';
@@ -207,7 +210,11 @@ const _joinTokens = (tokens, escapeText) => {
     }
     for (let i = 0; i < tok.v.length; i++, pos++) {
       const c = tok.v[i];
-      out += (!inCode[pos] && (c === '&' || c === '_')) ? `\\${c}` : c;
+      if (pos === blockEscapeOffset) {
+        out += `\\${c}`;
+      } else {
+        out += inCode[pos] ? c : _escapeInlineText(c);
+      }
     }
   }
   return out;
@@ -319,7 +326,9 @@ const getMarkdownFromAtext = (pad, atext) => {
       appendRaw(heading);
     }
 
-    const urls = _findURLs(text);
+    const inCode = _codeSpanMask(text);
+    const urls = heading === headingtags[6] ? null :
+      _findURLs(text)?.filter(([start]) => !inCode[start]);
 
     let idx = 0;
 
@@ -442,7 +451,9 @@ const getMarkdownFromAtext = (pad, atext) => {
         // `**` / `*` markers *inside* the link, producing broken output like
         // `[url](**https://example.com**)` (#156). Any open formatting run
         // simply continues across the link: `**bold [url](url) tail**`.
-        appendRaw(`[${url}](${taker.take(urlLength)})`);
+        const destination = taker.take(urlLength).replace(/[\\()]/g, '\\$&')
+            .replace(/&/g, '&amp;');
+        appendRaw(`[${_escapeInlineText(url)}](${destination})`);
         idx += urlLength;
       });
     }
@@ -454,12 +465,12 @@ const getMarkdownFromAtext = (pad, atext) => {
     // A line that already carries a block-level attribute (heading, code) is
     // emitted with its own Markdown prefix, so its text can no longer be read
     // as the start of some other block construct.
-    if (!heading) _escapeBlockStart(tokens);
+    const blockEscapeOffset = heading ? -1 : _blockEscapeOffset(tokens);
 
     // Nothing on a code line is escaped: it is emitted verbatim inside the
     // four-space code block. Math-mode ($...$) still has no special handling
     // here — that is a separate concern.
-    return _joinTokens(tokens, heading !== headingtags[6]);
+    return _joinTokens(tokens, heading !== headingtags[6], blockEscapeOffset);
   };
   // end getLineMarkdown
   const pieces = [];

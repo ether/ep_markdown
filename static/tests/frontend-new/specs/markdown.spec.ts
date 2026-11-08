@@ -2,11 +2,26 @@ import {expect, test} from '@playwright/test';
 import {clearPadContent, getPadBody, goToNewPad, selectAllText, writeToPad}
     from 'ep_etherpad-lite/tests/frontend-new/helper/padHelper';
 
+const {markdownToHtml} = require('ep_markdown/importMarkdown');
+
 test.beforeEach(async ({page}) => {
   await goToNewPad(page);
 });
 
 test.describe('ep_markdown', () => {
+  test('exports typed inline Markdown as literal text', async ({page}) => {
+    await clearPadContent(page);
+    await writeToPad(page, 'a *star* and [text](http://x.y) here');
+
+    // Wait for the browser edit to reach the server before checking the
+    // exported document through the same renderer used by Markdown import.
+    await expect.poll(async () => {
+      const response = await page.request.get(`${page.url()}/export/markdown`);
+      expect(response.ok()).toBeTruthy();
+      return markdownToHtml(await response.text());
+    }).toContain('<p>a *star* and [text](<a href="http://x.y)">http://x.y)</a> here</p>');
+  });
+
   test('Bold section renders the markdown class on body when "Show Markdown" is enabled',
       async ({page}) => {
         const padBody = await getPadBody(page);
