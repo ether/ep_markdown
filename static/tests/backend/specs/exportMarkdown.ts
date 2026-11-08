@@ -34,6 +34,48 @@ const toHtml = (markdown: string) => markdownToHtml(markdown)
 
 describe('ep_markdown export (issue #156)', function () {
   describe('escaping', function () {
+    for (const text of [
+      'a *star*, **bold**, _word_ and ~~strike~~',
+      '[text](target) and ![image](image.png)',
+      '[label][ref] and [ref]: target',
+      String.raw`a \*star\* and \\server\file`,
+      '* not a list',
+      '***',
+      '> not a quote',
+      '~~~',
+      '```',
+    ]) {
+      it(`preserves literal inline syntax in ${JSON.stringify(text)}`, function () {
+        const md = toMarkdown([[`${text}\n`, []]]);
+        const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        assert.equal(toHtml(md).trim(), `<p>${escaped}</p>`);
+      });
+    }
+
+    it('keeps typed HTML and entities as text', function () {
+      const md = toMarkdown([['<b>literal</b> &amp; &#42;\n', []]]);
+      assert.equal(toHtml(md).trim(), '<p>&lt;b&gt;literal&lt;/b&gt; &amp;amp; &amp;#42;</p>');
+    });
+
+    it('escapes text split across authors without escaping real formatting', function () {
+      const md = toMarkdown([
+        ['a *', [['bold', 'true'], ['author', 'one']]],
+        ['star* and [text](target)\n', [['bold', 'true'], ['author', 'two']]],
+      ]);
+      assert.equal(toHtml(md).trim(), '<p><strong>a *star* and [text](target)</strong></p>');
+    });
+
+    it('preserves inline syntax inside a code span', function () {
+      const md = toMarkdown([['`*star* [text](target) \\ &amp;`\n', []]]);
+      assert.equal(toHtml(md).trim(), '<p><code>*star* [text](target) \\ &amp;amp;</code></p>');
+    });
+
+    it('does not insert link syntax inside a code span', function () {
+      const md = toMarkdown([['`https://example.com/_x_?a=1&b=2`\n', []]]);
+      assert.equal(toHtml(md).trim(),
+          '<p><code>https://example.com/_x_?a=1&amp;b=2</code></p>');
+    });
+
     it('does not escape underscores inside a code span', function () {
       const md = toMarkdown([['`under_score`\n', []]]);
       assert.ok(md.includes('`under_score`'), md);
@@ -60,9 +102,37 @@ describe('ep_markdown export (issue #156)', function () {
       assert.ok(md.includes('    a_b & c'), md);
       assert.ok(!md.includes('\\'), md);
     });
+
+    it('keeps URLs and inline punctuation verbatim on a code line', function () {
+      const md = toMarkdown([
+        ['*', [['heading', 'code']]],
+        ['https://example.com/_x_ *literal*\n', []],
+      ]);
+      assert.equal(toHtml(md).trim(),
+          '<pre><code>https://example.com/_x_ *literal*\n</code></pre>');
+    });
   });
 
   describe('links', function () {
+    it('keeps typed link syntax literal around an automatically linked URL', function () {
+      const md = toMarkdown([['a *star* and [text](http://x.y) here\n', []]]);
+      assert.equal(toHtml(md).trim(),
+          '<p>a *star* and [text](<a href="http://x.y)">http://x.y)</a> here</p>');
+    });
+
+    it('preserves Markdown characters in the displayed URL', function () {
+      const md = toMarkdown([['https://example.com/_a_?x=1&copy;more\n', []]]);
+      assert.equal(toHtml(md).trim(),
+          '<p><a href="https://example.com/_a_?x=1&amp;copy;more">' +
+          'https://example.com/_a_?x=1&amp;copy;more</a></p>');
+    });
+
+    it('keeps URL parentheses in the link destination', function () {
+      const md = toMarkdown([['https://example.com/a(b)c)\n', []]]);
+      assert.equal(toHtml(md).trim(),
+          '<p><a href="https://example.com/a(b)c)">https://example.com/a(b)c)</a></p>');
+    });
+
     it('keeps formatting markers out of a link inside a bold line', function () {
       const md = toMarkdown([
         ['bold ', [['bold', 'true']]],
@@ -97,7 +167,9 @@ describe('ep_markdown export (issue #156)', function () {
 
     it('does not backslash-escape the link destination', function () {
       const md = toMarkdown([['https://example.com/a_b&c\n', []]]);
-      assert.ok(md.includes('(https://example.com/a_b&c)'), md);
+      assert.ok(md.includes('(https://example.com/a_b&amp;c)'), md);
+      assert.equal(toHtml(md).trim(),
+          '<p><a href="https://example.com/a_b&amp;c">https://example.com/a_b&amp;c</a></p>');
     });
   });
 
