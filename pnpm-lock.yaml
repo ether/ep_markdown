@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       ep_plugin_helpers:
-        specifier: ^0.6.9
-        version: 0.6.9(supports-color@7.2.0)
+        specifier: ^0.6.10
+        version: 0.6.10(supports-color@7.2.0)
       express-rate-limit:
         specifier: ^8.0.0 || ^7.0.0
         version: 8.7.0(express@5.2.1(supports-color@7.2.0))(supports-color@7.2.0)
@@ -484,8 +484,8 @@ packages:
     resolution: {integrity: sha512-kxL7msIffSuh9aaFAMD7rxAIuTRMAHMeBtgHW2yUdWw732ZNh4MehkF2gdjvtdmikkaIP9bFDDJOPlsvm7avrA==}
     engines: {node: '>=20.19.0'}
 
-  ep_plugin_helpers@0.6.9:
-    resolution: {integrity: sha512-nRibrlOkZNE1bqvuYlTVV/ndqoBttPrOx9XbwPqs4CeiB5j/jh5TPOkK87YkzeUs2ZNNInrz/2bANVE7J2Zpaw==}
+  ep_plugin_helpers@0.6.10:
+    resolution: {integrity: sha512-q6cgd/WOJPglyIi6N33UPhEWnWko0L28Nxwablmy8IMZ/6rTJVzRhSQxpsh/fhqk6P5dWHgHw1U+2MwWY0eR3A==}
     engines: {node: '>=22.0.0'}
 
   es-abstract-get@1.0.0:
@@ -1995,7 +1995,7 @@ snapshots:
 
   entities@8.1.0: {}
 
-  ep_plugin_helpers@0.6.9(supports-color@7.2.0):
+  ep_plugin_helpers@0.6.10(supports-color@7.2.0):
     dependencies:
       log4js: 6.9.1(supports-color@7.2.0)
     transitivePeerDependencies:
