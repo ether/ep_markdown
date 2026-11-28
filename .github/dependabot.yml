@@ -9,3 +9,7 @@ updates:
     schedule:
       interval: "daily"
     versioning-strategy: "increase"
+    ignore:
+      # typescript-eslint has no release that supports TypeScript 7 yet.
+      - dependency-name: "typescript"
+        versions: [">=7"]
